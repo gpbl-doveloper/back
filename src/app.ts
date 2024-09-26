@@ -2,6 +2,8 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { morganMW } from "./lib/middlewares/logger";
+import errorHandler from "./lib/middlewares/errorHandler";
+
 // TODO
 // import Paths from "./common/paths";
 // import BaseRouter from "./routes";
@@ -20,13 +22,17 @@ app.use(cookieParser()); // 쿠키 파싱
 app.use(morganMW); // HTTP 요청 로깅
 // app.use(helmet());// 보안 관련 헤더 설정
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("hello, world!");
+  //  throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+});
+
 // Add APIs, must be after middleware
 // TODO
 // app.use(Paths.Base, BaseRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
-});
+// Add error handler, must be after routers
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
