@@ -1,17 +1,15 @@
 ## JIRA Issue
 
-- [JIRA-###](https://kmu-global.atlassian.net/browse/TA-###)
+- [TA-###](https://kmu-global.atlassian.net/browse/TA-###)
 <!-- Write the JIRA issue number in this(###) section! -->
 
 ## Description
 
-Please include a summary of the changes and which issue is fixed.
+> Please include a summary of the changes and which issue is fixed.
 
-- This PR fixes/closes #[issue_number]
+- This PR fixes/closes TA-###
 
 ## Type of Change
-
-Please delete options that are not relevant:
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -28,4 +26,4 @@ Please delete options that are not relevant:
 
 ## Additional Context
 
-Add any other context or screenshots regarding the pull request here.
+> Add any other context or screenshots regarding the pull request here.
