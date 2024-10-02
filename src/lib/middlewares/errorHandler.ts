@@ -1,25 +1,22 @@
 import { Request, Response, NextFunction } from "express";
-import HttpStatusCodes from "../../common/HttpStatusCodes";
-import { logError } from "./logger";
+import { errorResponse } from "../../common/response";
+import { CustomError } from "../error/customError";
 
 const errorHandlerMiddleware = (
-  err: any,
+  err: CustomError | Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const error = {
-    // 에러가 발생했지만, 기본적인 에러 코드나 에러 메세지가 존재하지 않을 경우를 대비한 default 에러 코드 및 에러 메세지
-    statusCode: err.statusCode || HttpStatusCodes.INTERNAL_SERVER_ERROR, // 500
-    errorCode: err.errorCode || 0,
-    message: err.message || "unknown error accrued",
-  };
+  // res.status(error.statusCode).json({ message: error.message, errorCode: error.errorCode });
 
-  logError(`(${error.errorCode}) ${error.message}`);
+  if (err instanceof CustomError) {
+    // CustomError 처리
+    return errorResponse(res, err.statusCode, err.message, err.errorCode);
+  }
 
-  return res
-    .status(error.statusCode)
-    .json({ message: error.message, errorCode: error.errorCode });
+  // 기본 에러 처리
+  return errorResponse(res, 500, "Internal Server Error", 0);
 };
 
 export default errorHandlerMiddleware;
