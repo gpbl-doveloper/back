@@ -3,12 +3,21 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { morganMW } from "./lib/middlewares/logger";
 import errorHandler from "./lib/middlewares/errorHandler";
-
-// TODO
-// import Paths from "./common/paths";
-// import BaseRouter from "./routes";
+import admin from "firebase-admin";
 
 dotenv.config();
+
+// Firebase Admin SDK 초기화
+const serviceAccount = require(process.env
+  .FIREBASE_SERVICE_ACCOUNT_PATH as string);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET as string,
+});
+
+import paths from "./common/paths";
+import BaseRouter from "./routes";
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -28,8 +37,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // Add APIs, must be after middleware
-// TODO
-// app.use(Paths.Base, BaseRouter);
+app.use(paths.base, BaseRouter);
 
 // Add error handler, must be after routers
 app.use(errorHandler);
