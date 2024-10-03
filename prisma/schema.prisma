@@ -52,6 +52,6 @@ model File {
   fileKey   String   @unique
   
   // Diary와의 N:1 관계
-  diary     Diary   @relation(fields: [diaryId], references: [id])
-  diaryId   Int
+  diary     Diary?   @relation(fields: [diaryId], references: [id])
+  diaryId   Int?
 }
