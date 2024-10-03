@@ -1,6 +1,6 @@
 import express from "express";
 import { uploadFiles } from "../controllers/diaryController";
-import { upload } from "../lib/middlewares/multerConfig";
+import { upload } from "../middlewares/multerConfig";
 
 const router = express.Router();
 

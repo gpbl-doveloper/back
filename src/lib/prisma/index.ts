@@ -1,4 +1,4 @@
-import { logInfo, logWarn, logError } from "../middlewares/logger";
+import { logInfo, logWarn, logError } from "../../middlewares/logger";
 
 const { PrismaClient } = require("@prisma/client");
 

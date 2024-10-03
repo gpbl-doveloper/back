@@ -1,8 +1,8 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import { morganMW } from "./lib/middlewares/logger";
-import errorHandler from "./lib/middlewares/errorHandler";
+import { morganMW } from "./middlewares/logger";
+import errorHandler from "./middlewares/errorHandler";
 import admin from "firebase-admin";
 
 dotenv.config();
