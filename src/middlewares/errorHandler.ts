@@ -16,7 +16,7 @@ const errorHandlerMiddleware = (
   }
 
   // 기본 에러 처리
-  return errorResponse(res, 500, "Internal Server Error", 0);
+  return errorResponse(res, 500, err.name + err.message, 0);
 };
 
 export default errorHandlerMiddleware;
