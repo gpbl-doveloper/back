@@ -11,6 +11,11 @@ export default {
     update: "/update",
     delete: "/delete/:id",
   },
+  picture: {
+    base: "/picture",
+    upload: "/upload",
+    get: "/all",
+  },
   diary: {
     base: "/diary",
   },

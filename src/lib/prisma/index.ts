@@ -37,4 +37,4 @@ prisma.$on("error", (e: any) => {
   logError(`prisma Error: ${e.message}`);
 });
 
-module.exports = prisma;
+export default prisma;
