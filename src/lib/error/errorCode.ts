@@ -13,6 +13,11 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR, // 500
     message: "internal server error: prisma DB error",
   },
+  NO_FILES_UPLOADED: {
+    code: 5001,
+    statusCode: HttpStatusCodes.BAD_REQUEST, //400
+    message: "No files uploaded",
+  },
 };
 
 export default ErrorCode;

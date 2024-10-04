@@ -5,6 +5,8 @@ import { File } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
+import { CustomError } from "../lib/error/customError";
+import ErrorCode from "../lib/error/errorCode";
 
 export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
   const todayMidnight = new Date();
@@ -34,42 +36,38 @@ export const getDiaryInfo = asyncWrapper(
   }
 );
 
-export const addDiary = async (req: Request, res: Response) => {
-  try {
-    //// TODO: file upload 없앨거임
-    const files = req.files as Express.Multer.File[];
+export const addDiary = asyncWrapper(async (req: Request, res: Response) => {
+  //// TODO: file upload 없앨거임
+  const files = req.files as Express.Multer.File[];
 
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No files uploaded" });
-    }
-
-    const uploadResults: File[] = [];
-
-    for (const file of files) {
-      const filePath = file.path;
-      const destination = `uploads/${file.filename}`;
-      const newFile = await storageService.uploadFile(filePath, destination);
-
-      uploadResults.push(newFile);
-
-      // 임시 파일 삭제
-      fs.unlinkSync(filePath);
-    }
-
-    //// diary 생성
-    const newDiary = await prisma.diary.create({
-      data: { content: req.body.content },
-    });
-
-    //// file update
-    // TODO file upload 없어지면 id list 받을거임
-    await prisma.file.updateMany({
-      where: { id: { in: uploadResults.map((file) => file.id) } },
-      data: { diaryId: newDiary.id },
-    });
-
-    res.json({ diary: { ...newDiary, files: uploadResults } });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  if (!files || files.length === 0) {
+    throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
   }
-};
+
+  const uploadResults: File[] = [];
+
+  for (const file of files) {
+    const filePath = file.path;
+    const destination = `uploads/${file.filename}`;
+    const newFile = await storageService.uploadFile(filePath, destination);
+
+    uploadResults.push(newFile);
+
+    // 임시 파일 삭제
+    fs.unlinkSync(filePath);
+  }
+
+  //// diary 생성
+  const newDiary = await prisma.diary.create({
+    data: { content: req.body.content },
+  });
+
+  //// file update
+  // TODO file upload 없어지면 id list 받을거임
+  await prisma.file.updateMany({
+    where: { id: { in: uploadResults.map((file) => file.id) } },
+    data: { diaryId: newDiary.id },
+  });
+
+  successResponse(res, { diary: { ...newDiary, files: uploadResults } });
+});
