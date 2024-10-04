@@ -33,16 +33,17 @@ model Dog {
   dogDiaries  Diary[] @relation("DiaryDogRelation")  // Diary와의 1:N 관계 
 }
 
+// FIXME nullable -> notnull
 model Diary {
   id        Int      @id @default(autoincrement())
   content   String   
   createdAt DateTime @default(now())
 
   // User와의 1:N 관계, 다이어리 작성자(author) 관계 명시
-  author    User     @relation("DiaryAuthorRelation", fields: [authorId], references: [id])  
-  authorId  Int  
-  dog       Dog     @relation("DiaryDogRelation", fields: [dogId], references: [id])
-  dogId     Int
+  author    User?     @relation("DiaryAuthorRelation", fields: [authorId], references: [id])  
+  authorId  Int?  
+  dog       Dog?     @relation("DiaryDogRelation", fields: [dogId], references: [id])
+  dogId     Int?
   
   files     File[]     // File과의 1:N 관계
 }

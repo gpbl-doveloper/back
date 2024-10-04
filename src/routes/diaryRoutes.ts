@@ -1,13 +1,12 @@
 import express from "express";
-import { uploadFiles } from "../controllers/diaryController";
+import { addDiary } from "../controllers/diaryController";
 import { upload } from "../middlewares/multerConfig";
 
 const router = express.Router();
 
 /**
- * 여러 파일 업로드 라우트
- * 한 번에 10개 파일만
+ * 다이어리 업로드 라우트
  */
-router.post("/upload", upload.array("files", 10), uploadFiles);
+router.post("/add", upload.array("files", 20), addDiary);
 
 export default router;

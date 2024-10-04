@@ -18,5 +18,6 @@ export default {
   },
   diary: {
     base: "/diary",
+    add: "/add",
   },
 } as const; //읽기 전용으로
