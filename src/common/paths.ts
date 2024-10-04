@@ -13,11 +13,13 @@ export default {
   },
   picture: {
     base: "/picture",
-    upload: "/upload",
     get: "/all",
+    upload: "/upload",
   },
   diary: {
     base: "/diary",
+    get: "/all",
+    info: "/:id",
     add: "/add",
   },
 } as const; //읽기 전용으로

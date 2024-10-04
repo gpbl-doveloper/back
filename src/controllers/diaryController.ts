@@ -3,6 +3,36 @@ import { storageService } from "../lib/storage";
 import * as fs from "fs";
 import { File } from "@prisma/client";
 import prisma from "../lib/prisma";
+import { asyncWrapper } from "../middlewares/async";
+import { successResponse } from "../common/response";
+
+export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0); // 시간을 자정으로 설정
+  const diarys = await prisma.diary.findMany({
+    where: {
+      createdAt: {
+        gte: todayMidnight, // 자정 이후로 생성된 레코드만 불러옴
+      },
+    },
+    include: { files: true },
+  });
+  console.log(diarys);
+  successResponse(res, { diarys });
+});
+
+export const getDiaryInfo = asyncWrapper(
+  async (req: Request, res: Response) => {
+    const diary = await prisma.diary.findUnique({
+      where: {
+        id: Number(req.params.id),
+      },
+      include: { files: true },
+    });
+    console.log(diary);
+    successResponse(res, { diary });
+  }
+);
 
 export const addDiary = async (req: Request, res: Response) => {
   try {
