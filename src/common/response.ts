@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { logError } from "../lib/middlewares/logger";
+import { logError } from "../middlewares/logger";
 
 // 성공 응답 형식
 export const successResponse = (

@@ -15,7 +15,46 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
+  uid       String   @unique // firebase uid
+  name      String
   createdAt DateTime @default(now())
+
+  authoredDiaries  Diary[] @relation("DiaryAuthorRelation")   // Diary와의 1:N 관계 - 작성자(author)로 연결된 다이어리들
+  dogs      Dog[]     // Dog과의 1:N 관계
+}
+
+model Dog {
+  id        Int      @id @default(autoincrement())
+  name      String
+
+  owner     User    @relation(fields: [ownerId], references: [id])   // User와의 N:1 관계
+  ownerId   Int
+
+  dogDiaries  Diary[] @relation("DiaryDogRelation")  // Diary와의 1:N 관계 
+}
+
+// FIXME nullable -> notnull
+model Diary {
+  id        Int      @id @default(autoincrement())
+  content   String   
+  createdAt DateTime @default(now())
+
+  // User와의 1:N 관계, 다이어리 작성자(author) 관계 명시
+  author    User?     @relation("DiaryAuthorRelation", fields: [authorId], references: [id])  
+  authorId  Int?  
+  dog       Dog?     @relation("DiaryDogRelation", fields: [dogId], references: [id])
+  dogId     Int?
+  
+  files     File[]     // File과의 1:N 관계
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  fileKey   String   @unique
+  fileURL   String   
+  createdAt DateTime @default(now())
+  
+  // Diary와의 N:1 관계
+  diary     Diary?   @relation(fields: [diaryId], references: [id])
+  diaryId   Int?
 }

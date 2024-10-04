@@ -1,4 +1,4 @@
-import { logInfo, logWarn, logError } from "../middlewares/logger";
+import { logInfo, logWarn, logError } from "../../middlewares/logger";
 
 const { PrismaClient } = require("@prisma/client");
 
@@ -37,4 +37,4 @@ prisma.$on("error", (e: any) => {
   logError(`prisma Error: ${e.message}`);
 });
 
-module.exports = prisma;
+export default prisma;

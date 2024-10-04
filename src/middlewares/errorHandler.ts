@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { errorResponse } from "../../common/response";
-import { CustomError } from "../error/customError";
+import { errorResponse } from "../common/response";
+import { CustomError } from "../lib/error/customError";
 
 const errorHandlerMiddleware = (
   err: CustomError | Error,
@@ -16,7 +16,7 @@ const errorHandlerMiddleware = (
   }
 
   // 기본 에러 처리
-  return errorResponse(res, 500, "Internal Server Error", 0);
+  return errorResponse(res, 500, err.name + err.message, 0);
 };
 
 export default errorHandlerMiddleware;
