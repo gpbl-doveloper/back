@@ -6,10 +6,10 @@ export default {
   base: "/api",
   user: {
     base: "/user",
-    get: "/all",
-    add: "/add",
-    update: "/update",
-    delete: "/delete/:id",
+    // get: "/all",
+    // add: "/add",
+    // update: "/update",
+    // delete: "/delete/:id",
   },
   picture: {
     base: "/picture",
