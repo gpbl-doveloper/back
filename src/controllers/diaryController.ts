@@ -11,7 +11,7 @@ import ErrorCode from "../lib/error/errorCode";
 export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
   const todayMidnight = new Date();
   todayMidnight.setHours(0, 0, 0, 0); // 시간을 자정으로 설정
-  const diarys = await prisma.diary.findMany({
+  const diaryList = await prisma.diary.findMany({
     where: {
       createdAt: {
         gte: todayMidnight, // 자정 이후로 생성된 레코드만 불러옴
@@ -19,8 +19,8 @@ export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
     },
     include: { files: true },
   });
-  console.log(diarys);
-  successResponse(res, { diarys });
+  console.log(diaryList);
+  successResponse(res, { diaryList });
 });
 
 export const getDiaryInfo = asyncWrapper(

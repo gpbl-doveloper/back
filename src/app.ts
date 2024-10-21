@@ -36,7 +36,7 @@ app.get("/", (req: Request, res: Response) => {
   //  throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
 });
 
-// Add APIs, must be after middleware
+// Add APIs, must be after middlewareres.send("hello, world!");
 app.use(paths.base, BaseRouter);
 
 // Add error handler, must be after routers
