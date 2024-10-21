@@ -21,7 +21,7 @@ export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
   });
   console.log(diaryList);
   successResponse(res, { diaryList });
-}); // 기존의 diarys였던 변수명을, diaryList로 변경 (241011)
+});
 
 export const getDiaryInfo = asyncWrapper(
   async (req: Request, res: Response) => {
