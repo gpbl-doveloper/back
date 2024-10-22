@@ -4,6 +4,11 @@
 
 export default {
   base: "/api",
+  auth: {
+    base: "/auth",
+    signup: "/signup",
+    login: "/login",
+  },
   user: {
     base: "/user",
     // get: "/all",
