@@ -6,18 +6,29 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 
 export const signup = asyncWrapper(async (req: Request, res: Response) => {
-  const user = req.user;
-  // TODO DB에 이미 있는 유저인지 아닌지 확인
+  const req_user = req.user;
+  const { name, role, phone } = req.body;
 
-  // TODO 추가로 회원 정보 저장을 원한다면 DB에 사용자 정보 저장 등의 작업 수행 가능
+  // validate uid
+  const u = await prisma.user.findFirst({ where: { uid: req_user?.uid } });
+  if (u) throw new CustomError(ErrorCode.USER_ALREADY_EXIST);
 
-  console.log(user);
-  successResponse(res, { message: "User signed up successfully", user });
+  // create user
+  const created_user = await prisma.user.create({
+    data: { uid: req_user?.uid, name, role, phone, email: req_user?.email },
+  });
+
+  successResponse(res, {
+    message: "User signed up successfully",
+    user: created_user,
+  });
 });
 
 export const login = asyncWrapper(async (req: Request, res: Response) => {
-  const user = req.user;
-  // TODO validate uid
-  console.log(user);
+  const req_user = req.user;
+  // validate uid
+  const user = await prisma.user.findFirst({ where: { uid: req_user?.uid } });
+  if (!user) throw new CustomError(ErrorCode.USER_NOT_EXIST);
+
   successResponse(res, { message: "User logged in successfully", user });
 });
