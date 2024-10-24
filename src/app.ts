@@ -18,6 +18,7 @@ admin.initializeApp({
 
 import paths from "./common/paths";
 import BaseRouter from "./routes";
+import auth from "./middlewares/auth";
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -31,9 +32,9 @@ app.use(cookieParser()); // 쿠키 파싱
 app.use(morganMW); // HTTP 요청 로깅
 // app.use(helmet());// 보안 관련 헤더 설정
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", auth, (req: Request, res: Response) => {
+  // console.log(req.user); // if you want to check user status
   res.send("hello, world!");
-  //  throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
 });
 
 // Add APIs, must be after middleware

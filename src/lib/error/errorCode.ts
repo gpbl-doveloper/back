@@ -28,6 +28,16 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.NOT_FOUND,
     message: "User Not Exist",
   },
+  UNAUTHORIZED: {
+    code: 4003,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
+    message: "Unauthorized",
+  },
+  TOKEN_MISSING: {
+    code: 4004,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
+    message: "Authorization token missing",
+  },
 };
 
 export default ErrorCode;
