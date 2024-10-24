@@ -13,48 +13,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// TODO: sqlite does not support ENUM => postgresql 로 migrate
+// enum Role {
+//   PARENT
+//   TEACHER
+// }
+// enum Sex{
+//   FEMALE 
+//   MALE
+// }
+
 model User {
   id        Int      @id @default(autoincrement())
   uid       String   @unique // firebase uid
   name      String
+  role      String   @default("PARENT") // PARENT, TEACHER
+  phone     String?
+  email     String   @unique
   createdAt DateTime @default(now())
 
-  authoredDiaries  Diary[] @relation("DiaryAuthorRelation")   // Diary와의 1:N 관계 - 작성자(author)로 연결된 다이어리들
-  dogs      Dog[]     // Dog과의 1:N 관계
+  authoredDiaries Diary[] @relation("DiaryAuthorRelation")
+  dogs            Dog[]
+}
+
+model Breed {
+  id   Int    @id @default(autoincrement())
+  name String
+  Dog  Dog[]
 }
 
 model Dog {
-  id        Int      @id @default(autoincrement())
-  name      String
+  id         Int      @id @default(autoincrement())
+  name       String
+  img        File?    @relation(fields: [fileId], references: [id])
+  sex        String
+  isNeutered Boolean
+  bod        DateTime
+  breed      Breed    @relation(fields: [breedId], references: [id])
+  medicine   String?
+  // meal      String? 
 
-  owner     User    @relation(fields: [ownerId], references: [id])   // User와의 N:1 관계
-  ownerId   Int
+  owner   User @relation(fields: [ownerId], references: [id])
+  ownerId Int
 
-  dogDiaries  Diary[] @relation("DiaryDogRelation")  // Diary와의 1:N 관계 
+  dogDiaries Diary[] @relation("DiaryDogRelation")
+  fileId     Int?
+  breedId    Int
 }
 
 // FIXME nullable -> notnull
 model Diary {
   id        Int      @id @default(autoincrement())
-  content   String   
+  content   String
   createdAt DateTime @default(now())
 
-  // User와의 1:N 관계, 다이어리 작성자(author) 관계 명시
-  author    User?     @relation("DiaryAuthorRelation", fields: [authorId], references: [id])  
-  authorId  Int?  
-  dog       Dog?     @relation("DiaryDogRelation", fields: [dogId], references: [id])
-  dogId     Int?
-  
-  files     File[]     // File과의 1:N 관계
+  author   User? @relation("DiaryAuthorRelation", fields: [authorId], references: [id])
+  authorId Int?
+  dog      Dog?  @relation("DiaryDogRelation", fields: [dogId], references: [id])
+  dogId    Int?
+
+  files File[]
 }
 
 model File {
   id        Int      @id @default(autoincrement())
   fileKey   String   @unique
-  fileURL   String   
+  fileURL   String
+  // fileType  String   @default("image/png") 
   createdAt DateTime @default(now())
-  
-  // Diary와의 N:1 관계
-  diary     Diary?   @relation(fields: [diaryId], references: [id])
-  diaryId   Int?
+
+  diary   Diary? @relation(fields: [diaryId], references: [id])
+  diaryId Int?
+  Dog     Dog[]
 }

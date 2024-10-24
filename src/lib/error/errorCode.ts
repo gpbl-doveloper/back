@@ -18,6 +18,26 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.BAD_REQUEST, //400
     message: "No files uploaded",
   },
+  USER_ALREADY_EXIST: {
+    code: 4001,
+    statusCode: HttpStatusCodes.BAD_REQUEST,
+    message: "User Already Exist",
+  },
+  USER_NOT_EXIST: {
+    code: 4002,
+    statusCode: HttpStatusCodes.NOT_FOUND,
+    message: "User Not Exist",
+  },
+  UNAUTHORIZED: {
+    code: 4003,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
+    message: "Unauthorized",
+  },
+  TOKEN_MISSING: {
+    code: 4004,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
+    message: "Authorization token missing",
+  },
 };
 
 export default ErrorCode;
