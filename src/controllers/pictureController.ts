@@ -10,6 +10,8 @@ import ErrorCode from "../lib/error/errorCode";
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[]; // 여러 파일 배열
+  console.log("파일 상태 : " + files);
+  console.log("파일 상태 : " + files.length);
 
   if (!files || files.length === 0) {
     throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
