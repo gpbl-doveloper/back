@@ -16,10 +16,9 @@ export class FirebaseStorageService implements StorageService {
   async uploadFile(filePath: string, destination: string): Promise<File> {
     const [file] = await this.bucket.upload(filePath, { destination });
 
-    // 업로드된 파일의 공개 URL 생성
     const downloadURL = await file.getSignedUrl({
       action: "read",
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 현재 시간 + 7일
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // now + 7 days
     });
 
     const newfile = await prisma.file.create({
@@ -30,18 +29,16 @@ export class FirebaseStorageService implements StorageService {
     });
     console.log(`Created file: ${JSON.stringify(newfile)}`);
 
-    return newfile; // 생성된 공개 file 반환
+    return newfile;
   }
 
-  // fileKey는 Firebase Storage 버킷 내에서 파일이 저장된 경로
-  // JSON 응답의 "name" 필드가 바로 Firebase Storage에서 해당 파일을 참조할 때 사용하는 fileKey입니다
+  // fileKey: location of the file at Firebase Storage
   async getFileURL(fileKey: string): Promise<string> {
     const file = this.bucket.file(fileKey);
 
-    // 공개 URL 생성
     const downloadURL = await file.getSignedUrl({
       action: "read",
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 현재 시간 + 7일
+      expires: new Date(Date.now() + 7 * 24 * 3600 * 1000), // now + 7 days
     });
 
     return downloadURL[0];
@@ -52,53 +49,90 @@ export class FirebaseStorageService implements StorageService {
   }
 }
 
-/* prepare for S3 migration
+import {
+  S3Client,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import * as fs from "fs";
 
-//import * as AWS from "aws-sdk";
-// import * as fs from "fs";
+const s3 = new S3Client({ region: process.env.AWS_REGION as string });
 
-// const s3 = new AWS.S3();
+export class S3StorageService implements StorageService {
+  private bucketName = process.env.AWS_BUCKET_NAME as string;
 
-// export class S3StorageService implements StorageService {
-//   private bucketName = "your-s3-bucket";
+  async uploadFile(filePath: string, destination: string): Promise<File> {
+    try {
+      const fileStream = fs.createReadStream(filePath);
 
-//   async uploadFile(filePath: string, destination: string): Promise<string> {
-//     const fileStream = fs.createReadStream(filePath);
-//     const uploadResult = await s3
-//       .upload({
-//         Bucket: this.bucketName,
-//         Key: destination,
-//         Body: fileStream,
-//       })
-//       .promise();
-//     return uploadResult.Location;
-//   }
+      const upload = new Upload({
+        client: s3,
+        params: {
+          Bucket: this.bucketName,
+          Key: destination,
+          Body: fileStream,
+        },
+      });
 
-//   async getFileURL(fileKey: string): Promise<string> {
-//     return s3.getSignedUrl("getObject", {
-//       Bucket: this.bucketName,
-//       Key: fileKey,
-//       Expires: 60 * 60,
-//     });
-//   }
+      const { Location } = await upload.done();
 
-//   async deleteFile(fileKey: string): Promise<void> {
-//     await s3
-//       .deleteObject({
-//         Bucket: this.bucketName,
-//         Key: fileKey,
-//       })
-//       .promise();
-//   }
-// }
+      const newFile = await prisma.file.create({
+        data: {
+          fileKey: destination,
+          fileURL: Location,
+        },
+      });
 
-// if (process.env.STORAGE_PROVIDER === "firebase") {
-//   storageService = new FirebaseStorageService();
-// } else if (process.env.STORAGE_PROVIDER === "s3") {
-//   storageService = new S3StorageService();
-// }
-*/
+      console.log(`Created file: ${JSON.stringify(newFile)}`);
+      return newFile;
+    } catch (error) {
+      console.error("Error uploading file to S3:", error);
+      throw new Error("File upload failed");
+    }
+  }
 
-storageService = new FirebaseStorageService();
+  async getFileURL(fileKey: string): Promise<string> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileKey,
+      });
+
+      // Generate a pre-signed URL with an expiration of 7 days
+      const url = await getSignedUrl(s3, command, {
+        expiresIn: 7 * 24 * 3600,
+      });
+      return url;
+    } catch (error) {
+      console.error("Error generating S3 file URL:", error);
+      throw new Error("Failed to get file URL");
+    }
+  }
+
+  async deleteFile(fileKey: string): Promise<void> {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileKey,
+      });
+
+      await s3.send(command);
+      console.log(`Deleted file with key: ${fileKey}`);
+    } catch (error) {
+      console.error("Error deleting file from S3:", error);
+      throw new Error("File deletion failed");
+    }
+  }
+}
+
+if (process.env.STORAGE_PROVIDER === "firebase") {
+  storageService = new FirebaseStorageService();
+} else if (process.env.STORAGE_PROVIDER === "s3") {
+  storageService = new S3StorageService();
+}
+
+// storageService = new FirebaseStorageService();
 
 export { storageService };
