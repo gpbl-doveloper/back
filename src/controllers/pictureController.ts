@@ -34,7 +34,7 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
 export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
   const { date } = req.query;
-  const dateMidnight = new Date(date as string);
+  const dateMidnight = new Date(date ? (date as string) : 0);
   dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
 
   const files = await prisma.file.findMany({
