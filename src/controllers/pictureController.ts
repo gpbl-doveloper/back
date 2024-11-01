@@ -17,7 +17,7 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
   const uploadResults: File[] = [];
 
-  // 각 파일을 스토리지 서비스에 업로드
+  // upload each file to storageService
   for (const file of files) {
     const filePath = file.path;
     const destination = `uploads/${file.filename}`;
@@ -25,7 +25,7 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
     uploadResults.push(newFile);
 
-    // 임시 파일 삭제
+    // unlink temp file
     fs.unlinkSync(filePath);
   }
 
