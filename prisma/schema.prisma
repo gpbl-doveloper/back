@@ -17,6 +17,7 @@ datasource db {
 // enum Role {
 //   PARENT
 //   TEACHER
+//   DIRECTOR
 // }
 // enum Sex{
 //   FEMALE 
@@ -27,41 +28,55 @@ model User {
   id        Int      @id @default(autoincrement())
   uid       String   @unique // firebase uid
   name      String
-  role      String   @default("PARENT") // PARENT, TEACHER
+  role      String   @default("PARENT") // PARENT, TEACHER, DIRECTOR
   phone     String?
   email     String   @unique
   createdAt DateTime @default(now())
 
   authoredDiaries Diary[] @relation("DiaryAuthorRelation")
-  dogs            Dog[]
+  dogs            Dog[] @relation("DogOwnerRelation")
+
+  // 1대1 관계: Owner 관계
+  ownedCenter Center? @relation("CenterOwnerRelation")
+
+  // 일대다 관계: Employee 관계
+  center      Center? @relation("CenterUserRelation", fields: [centerId], references: [id])
+  centerId    Int?
 }
 
-model Breed {
-  id   Int    @id @default(autoincrement())
-  name String
-  Dog  Dog[]
+
+model Center {
+  id        Int      @id @default(autoincrement())
+  name      String  
+  phone     String? 
+  description String @default("")
+  createdAt DateTime @default(now())
+  
+  owner     User   @relation("CenterOwnerRelation", fields: [ownerId], references: [id]) 
+  ownerId   Int    @unique 
+
+  diarys    Diary[] @relation("DiaryCenterRelation")
+  employees User[]   @relation("CenterUserRelation") 
 }
 
 model Dog {
   id         Int      @id @default(autoincrement())
   name       String
-  img        File?    @relation(fields: [fileId], references: [id])
+  img        String
   sex        String
   isNeutered Boolean
   bod        DateTime
-  breed      Breed    @relation(fields: [breedId], references: [id])
-  medicine   String?
-  // meal      String? 
+  breed      String?
+  medicine   MedicineRequest[] @relation("MRDogRelation")
 
-  owner   User @relation(fields: [ownerId], references: [id])
+  owner   User @relation("DogOwnerRelation", fields: [ownerId], references: [id])
   ownerId Int
 
-  dogDiaries Diary[] @relation("DiaryDogRelation")
-  fileId     Int?
-  breedId    Int
+  diarys     Diary[] @relation("DiaryDogRelation")
+  facefiles  File[]  @relation("facefileRelation")
+  reservations Reservation[] @relation("ReservationDogRelation")
 }
 
-// FIXME nullable -> notnull
 model Diary {
   id        Int      @id @default(autoincrement())
   content   String
@@ -71,8 +86,10 @@ model Diary {
   authorId Int?
   dog      Dog?  @relation("DiaryDogRelation", fields: [dogId], references: [id])
   dogId    Int?
+  center   Center?  @relation("DiaryCenterRelation", fields: [centerId], references: [id])
+  centerId    Int?
 
-  files File[]
+  pictures File[]
 }
 
 model File {
@@ -84,5 +101,37 @@ model File {
 
   diary   Diary? @relation(fields: [diaryId], references: [id])
   diaryId Int?
-  Dog     Dog[]
+  dog       Dog? @relation("facefileRelation", fields: [dogId], references: [id])
+  dogId     Int?
+}
+
+model MedicineRequest {
+  id       Int               @id @default(autoincrement())
+  note     String
+  expireAt DateTime          @default(now())
+  records  MedicineRecord[]  
+  dog      Dog               @relation("MRDogRelation", fields: [dogId], references: [id])
+  dogId    Int               
+}
+
+model MedicineRecord {
+  id          Int              @id @default(autoincrement())
+  requestId   Int              
+  request     MedicineRequest   @relation(fields: [requestId], references: [id])
+  createdAt   DateTime         @default(now())
+}
+
+
+// enum ReservationStatus {
+//   PENDDING
+//   ACCEPTED
+//   REJECTED
+// }
+model Reservation{
+  id     Int              @id @default(autoincrement())
+  dog    Dog @relation("ReservationDogRelation",fields: [dogId], references: [id])
+  dogId  Int
+  date   DateTime @default(now())
+  status String   @default("PENDDING")
+  createdAt   DateTime         @default(now())
 }
