@@ -9,7 +9,7 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
-  const files = req.files as Express.Multer.File[]; // 여러 파일 배열
+  const files = req.files as Express.Multer.File[];
 
   if (!files || files.length === 0) {
     throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
@@ -17,7 +17,7 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
   const uploadResults: File[] = [];
 
-  // 각 파일을 스토리지 서비스에 업로드
+  // upload each file to storageService
   for (const file of files) {
     const filePath = file.path;
     const destination = `uploads/${file.filename}`;
@@ -25,7 +25,7 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
     uploadResults.push(newFile);
 
-    // 임시 파일 삭제
+    // unlink temp file
     fs.unlinkSync(filePath);
   }
 
@@ -33,13 +33,14 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 });
 
 export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
-  const todayMidnight = new Date();
-  todayMidnight.setHours(0, 0, 0, 0); // 시간을 자정으로 설정
+  const { date } = req.query;
+  const dateMidnight = new Date(date ? (date as string) : 0);
+  dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
 
   const files = await prisma.file.findMany({
     where: {
       createdAt: {
-        gte: todayMidnight, // 자정 이후로 생성된 레코드만 불러옴
+        gte: dateMidnight,
       },
     },
   });
