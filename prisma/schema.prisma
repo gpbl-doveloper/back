@@ -68,7 +68,9 @@ model Dog {
   isNeutered Boolean
   bod        DateTime
   breed      String?
-  medicine   MedicineRequest[] @relation("MRDogRelation")
+
+  lastPicSentAt DateTime?
+  lastNoteSentAt DateTime?
 
   owner   User @relation("DogOwnerRelation", fields: [ownerId], references: [id])
   ownerId Int
@@ -86,7 +88,7 @@ model Diary {
   feedingAmt    String @default("All") // All, Some, Nothing 
   napStart  DateTime?
   napEnd    DateTime?
-  note      String @default("")
+  note      String @default("") // additional note
 
   author   User? @relation("DiaryAuthorRelation", fields: [authorId], references: [id])
   authorId Int?
@@ -111,23 +113,6 @@ model File {
   dog       Dog? @relation("facefileRelation", fields: [dogId], references: [id])
   dogId     Int?
 }
-
-model MedicineRequest {
-  id       Int               @id @default(autoincrement())
-  note     String
-  expireAt DateTime          @default(now())
-  records  MedicineRecord[]  
-  dog      Dog               @relation("MRDogRelation", fields: [dogId], references: [id])
-  dogId    Int               
-}
-
-model MedicineRecord {
-  id          Int              @id @default(autoincrement())
-  requestId   Int              
-  request     MedicineRequest   @relation(fields: [requestId], references: [id])
-  createdAt   DateTime         @default(now())
-}
-
 
 // enum ReservationStatus {
 //   PENDDING
