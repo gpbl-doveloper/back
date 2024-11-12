@@ -64,11 +64,11 @@ model Center {
 model Dog {
   id         Int      @id @default(autoincrement())
   name       String
-  img        String
   sex        String
   isNeutered Boolean
   bod        DateTime
-  breed      String?
+  breed      String   @default("")
+  medication String   @default("")
 
   lastNoteAt DateTime?
   lastPicsAt DateTime?
