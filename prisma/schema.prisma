@@ -56,7 +56,8 @@ model Center {
   ownerId   Int    @unique 
 
   diarys    Diary[] @relation("DiaryCenterRelation")
-  employees User[]   @relation("CenterUserRelation") 
+  employees User[]  @relation("CenterUserRelation") 
+  files     File[]  @relation("CenterFileRelation")
 }
 
 model Dog {
@@ -79,8 +80,13 @@ model Dog {
 
 model Diary {
   id        Int      @id @default(autoincrement())
-  content   String
+  activities   String @default("")
   createdAt DateTime @default(now())
+  feedingTime   Int @default(1) // 1 - 3
+  feedingAmt    String @default("All") // All, Some, Nothing 
+  napStart  DateTime?
+  napEnd    DateTime?
+  note      String @default("")
 
   author   User? @relation("DiaryAuthorRelation", fields: [authorId], references: [id])
   authorId Int?
@@ -96,9 +102,10 @@ model File {
   id        Int      @id @default(autoincrement())
   fileKey   String   @unique
   fileURL   String
-  // fileType  String   @default("image/png") 
   createdAt DateTime @default(now())
-
+  
+  center    Center?  @relation("CenterFileRelation", fields: [dogId], references: [id])
+  centerId  Int?
   diary   Diary? @relation(fields: [diaryId], references: [id])
   diaryId Int?
   dog       Dog? @relation("facefileRelation", fields: [dogId], references: [id])
