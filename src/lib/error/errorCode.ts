@@ -38,6 +38,12 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.UNAUTHORIZED,
     message: "Authorization token missing",
   },
+
+  DOG_NOT_FOUND: {
+    code: 3001,
+    statusCode: HttpStatusCodes.NOT_FOUND,
+    message: "There is no such dog",
+  },
 };
 
 export default ErrorCode;
