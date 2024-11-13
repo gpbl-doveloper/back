@@ -16,8 +16,7 @@ datasource db {
 // TODO: sqlite does not support ENUM => postgresql 로 migrate
 // enum Role {
 //   PARENT
-//   TEACHER
-//   DIRECTOR
+//   CENTER
 // }
 // enum Sex{
 //   FEMALE 
@@ -28,110 +27,108 @@ model User {
   id        Int      @id @default(autoincrement())
   uid       String   @unique // firebase uid
   name      String
-  role      String   @default("PARENT") // PARENT, TEACHER, DIRECTOR
+  role      String   @default("PARENT") // PARENT, CENTER
   phone     String?
   email     String   @unique
   createdAt DateTime @default(now())
 
-  authoredDiaries Diary[] @relation("DiaryAuthorRelation")
-  dogs            Dog[] @relation("DogOwnerRelation")
+  // for center user
+  center   Center? @relation("CenterUserRelation") 
 
-  // 1대1 관계: Owner 관계
-  ownedCenter Center? @relation("CenterOwnerRelation")
-
-  // 일대다 관계: Employee 관계
-  center      Center? @relation("CenterUserRelation", fields: [centerId], references: [id])
-  centerId    Int?
+  // for parent user
+  dogs        Dog[]        @relation("DogOwnerRelation")
 }
 
-
 model Center {
-  id        Int      @id @default(autoincrement())
-  name      String  
-  phone     String? 
-  description String @default("")
-  createdAt DateTime @default(now())
-  
-  owner     User   @relation("CenterOwnerRelation", fields: [ownerId], references: [id]) 
-  ownerId   Int    @unique 
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String?
+  description String   @default("")
+  createdAt   DateTime @default(now())
 
-  diarys    Diary[] @relation("DiaryCenterRelation")
-  employees User[]   @relation("CenterUserRelation") 
+  user   User @relation("CenterUserRelation", fields: [userId], references: [id])
+  userId Int  @unique
+
+  diaryNotes  DiaryNote[]  @relation("DiaryNoteCenterRelation")
+  diaryPhotos DiaryPhoto[] @relation("DiaryPhotoCenterRelation")
+
+  files       File[]       @relation("CenterFileRelation") // for temporary photo upload
 }
 
 model Dog {
   id         Int      @id @default(autoincrement())
   name       String
-  img        String
   sex        String
   isNeutered Boolean
   bod        DateTime
-  breed      String?
-  medicine   MedicineRequest[] @relation("MRDogRelation")
+  breed      String   @default("")
+  medication String   @default("")
+
+  lastNoteAt DateTime?
+  lastPicsAt DateTime?
 
   owner   User @relation("DogOwnerRelation", fields: [ownerId], references: [id])
   ownerId Int
 
-  diarys     Diary[] @relation("DiaryDogRelation")
-  facefiles  File[]  @relation("facefileRelation")
+  diaryNotes   DiaryNote[]   @relation("DiaryNoteDogRelation")
+  diaryPhotos  DiaryPhoto[]  @relation("DiaryPhotoDogRelation")
+  facefiles    File[]        @relation("facefileRelation")
   reservations Reservation[] @relation("ReservationDogRelation")
 }
 
-model Diary {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
+model DiaryNote {
+  id          Int       @id @default(autoincrement())
+  activities  String    @default("")
+  createdAt   DateTime  @default(now())
+  feedingTime Int       @default(0) // 0 - 3
+  feedingAmt  String    @default("Nothing") // All, Some, Nothing 
+  napStart    DateTime?
+  napEnd      DateTime?
+  note        String    @default("") // additional note
+  sentAt      DateTime?
 
-  author   User? @relation("DiaryAuthorRelation", fields: [authorId], references: [id])
-  authorId Int?
-  dog      Dog?  @relation("DiaryDogRelation", fields: [dogId], references: [id])
+  dog      Dog?    @relation("DiaryNoteDogRelation", fields: [dogId], references: [id])
   dogId    Int?
-  center   Center?  @relation("DiaryCenterRelation", fields: [centerId], references: [id])
-  centerId    Int?
+  center   Center? @relation("DiaryNoteCenterRelation", fields: [centerId], references: [id])
+  centerId Int?
+}
 
-  pictures File[]
+model DiaryPhoto {
+  id        Int       @id @default(autoincrement())
+  pictures  File[]    @relation("DiaryPhotoFileRelation")
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  dog      Dog?    @relation("DiaryPhotoDogRelation", fields: [dogId], references: [id])
+  dogId    Int?
+  center   Center? @relation("DiaryPhotoCenterRelation", fields: [centerId], references: [id])
+  centerId Int?
 }
 
 model File {
   id        Int      @id @default(autoincrement())
   fileKey   String   @unique
   fileURL   String
-  // fileType  String   @default("image/png") 
   createdAt DateTime @default(now())
 
-  diary   Diary? @relation(fields: [diaryId], references: [id])
-  diaryId Int?
-  dog       Dog? @relation("facefileRelation", fields: [dogId], references: [id])
-  dogId     Int?
+  center       Center?     @relation("CenterFileRelation", fields: [dogId], references: [id])
+  centerId     Int?
+  diaryPhoto   DiaryPhoto? @relation("DiaryPhotoFileRelation", fields: [diaryPhotoId], references: [id])
+  diaryPhotoId Int?
+  dog          Dog?        @relation("facefileRelation", fields: [dogId], references: [id])
+  dogId        Int?
 }
-
-model MedicineRequest {
-  id       Int               @id @default(autoincrement())
-  note     String
-  expireAt DateTime          @default(now())
-  records  MedicineRecord[]  
-  dog      Dog               @relation("MRDogRelation", fields: [dogId], references: [id])
-  dogId    Int               
-}
-
-model MedicineRecord {
-  id          Int              @id @default(autoincrement())
-  requestId   Int              
-  request     MedicineRequest   @relation(fields: [requestId], references: [id])
-  createdAt   DateTime         @default(now())
-}
-
 
 // enum ReservationStatus {
 //   PENDDING
 //   ACCEPTED
 //   REJECTED
 // }
-model Reservation{
-  id     Int              @id @default(autoincrement())
-  dog    Dog @relation("ReservationDogRelation",fields: [dogId], references: [id])
-  dogId  Int
-  date   DateTime @default(now())
-  status String   @default("PENDDING")
-  createdAt   DateTime         @default(now())
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  dog       Dog      @relation("ReservationDogRelation", fields: [dogId], references: [id])
+  dogId     Int
+  date      DateTime @default(now())
+  status    String   @default("PENDDING")
+  createdAt DateTime @default(now())
 }

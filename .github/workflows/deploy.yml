@@ -1,0 +1,41 @@
+name: Deploy to Ubuntu EC2
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npx prisma generate
+          npm run build
+
+      - name: Deploy to Ubuntu EC2
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }} # GitHub Secrets에 SSH 키 저장
+          SERVER_USER: ubuntu # Ubuntu의 기본 사용자
+          SERVER_IP: ${{ secrets.SERVER_IP }} # EC2 인스턴스 IP
+        run: |
+          echo "${SSH_KEY}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ${SERVER_USER}@${SERVER_IP} << 'EOF'
+            cd /home/ubuntu/back               # 서버의 앱 디렉토리 경로로 이동
+            git pull origin develop               # 최신 코드 가져오기
+            npm install --production           # 프로덕션 모듈 설치
+            pm2 delete pawsomeday || true  # 기존 프로세스 삭제
+            pm2 start dist/app.js --name "pawsomeday"  # 컴파일된 JS 파일 실행
+          EOF
