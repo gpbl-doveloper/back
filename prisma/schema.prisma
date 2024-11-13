@@ -16,8 +16,7 @@ datasource db {
 // TODO: sqlite does not support ENUM => postgresql 로 migrate
 // enum Role {
 //   PARENT
-//   TEACHER
-//   DIRECTOR
+//   CENTER
 // }
 // enum Sex{
 //   FEMALE 
@@ -28,21 +27,16 @@ model User {
   id        Int      @id @default(autoincrement())
   uid       String   @unique // firebase uid
   name      String
-  role      String   @default("PARENT") // PARENT, TEACHER, DIRECTOR
+  role      String   @default("PARENT") // PARENT, CENTER
   phone     String?
   email     String   @unique
   createdAt DateTime @default(now())
 
-  diaryNotes  DiaryNote[]  @relation("DiaryNoteAuthorRelation")
-  diaryPhotos DiaryPhoto[] @relation("DiaryPhotoAuthorRelation")
+  // for center user
+  center   Center? @relation("CenterUserRelation") 
+
+  // for parent user
   dogs        Dog[]        @relation("DogOwnerRelation")
-
-  // 1대1 관계: Owner 관계
-  ownedCenter Center? @relation("CenterOwnerRelation")
-
-  // 일대다 관계: Employee 관계
-  center   Center? @relation("CenterUserRelation", fields: [centerId], references: [id])
-  centerId Int?
 }
 
 model Center {
@@ -52,13 +46,13 @@ model Center {
   description String   @default("")
   createdAt   DateTime @default(now())
 
-  owner   User @relation("CenterOwnerRelation", fields: [ownerId], references: [id])
-  ownerId Int  @unique
+  user   User @relation("CenterUserRelation", fields: [userId], references: [id])
+  userId Int  @unique
 
   diaryNotes  DiaryNote[]  @relation("DiaryNoteCenterRelation")
   diaryPhotos DiaryPhoto[] @relation("DiaryPhotoCenterRelation")
-  employees   User[]       @relation("CenterUserRelation")
-  files       File[]       @relation("CenterFileRelation")
+
+  files       File[]       @relation("CenterFileRelation") // for temporary photo upload
 }
 
 model Dog {
@@ -86,15 +80,13 @@ model DiaryNote {
   id          Int       @id @default(autoincrement())
   activities  String    @default("")
   createdAt   DateTime  @default(now())
-  feedingTime Int       @default(1) // 1 - 3
-  feedingAmt  String    @default("All") // All, Some, Nothing 
+  feedingTime Int       @default(0) // 0 - 3
+  feedingAmt  String    @default("Nothing") // All, Some, Nothing 
   napStart    DateTime?
   napEnd      DateTime?
   note        String    @default("") // additional note
   sentAt      DateTime?
 
-  author   User?   @relation("DiaryNoteAuthorRelation", fields: [authorId], references: [id])
-  authorId Int?
   dog      Dog?    @relation("DiaryNoteDogRelation", fields: [dogId], references: [id])
   dogId    Int?
   center   Center? @relation("DiaryNoteCenterRelation", fields: [centerId], references: [id])
@@ -107,8 +99,6 @@ model DiaryPhoto {
   sentAt    DateTime?
   createdAt DateTime  @default(now())
 
-  author   User?   @relation("DiaryPhotoAuthorRelation", fields: [authorId], references: [id])
-  authorId Int?
   dog      Dog?    @relation("DiaryPhotoDogRelation", fields: [dogId], references: [id])
   dogId    Int?
   center   Center? @relation("DiaryPhotoCenterRelation", fields: [centerId], references: [id])
