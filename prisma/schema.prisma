@@ -32,11 +32,11 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
 
-  // for center user
-  center   Center? @relation("CenterUserRelation") 
-
+  // for center user  
+  center   Center? @relation("CenterUserRelation", fields: [centerId], references: [id])
+  centerId Int?    @unique
   // for parent user
-  dogs        Dog[]        @relation("DogOwnerRelation")
+  dogs     Dog[]   @relation("DogOwnerRelation")
 }
 
 model Center {
@@ -46,13 +46,13 @@ model Center {
   description String   @default("")
   createdAt   DateTime @default(now())
 
-  user   User @relation("CenterUserRelation", fields: [userId], references: [id])
-  userId Int  @unique
+  user   User? @relation("CenterUserRelation")
+  userId Int   @unique
 
   diaryNotes  DiaryNote[]  @relation("DiaryNoteCenterRelation")
   diaryPhotos DiaryPhoto[] @relation("DiaryPhotoCenterRelation")
 
-  files       File[]       @relation("CenterFileRelation") // for temporary photo upload
+  files File[] @relation("CenterFileRelation") // for temporary photo upload
 }
 
 model Dog {
