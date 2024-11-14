@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import { morganMW } from "./middlewares/logger";
 import errorHandler from "./middlewares/errorHandler";
 import admin from "firebase-admin";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpecs from "./swaggerConfig";
 
 dotenv.config();
 
@@ -37,6 +39,8 @@ app.get("/", auth, (req: Request, res: Response) => {
   res.send("hello, world!");
 });
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 // Add APIs, must be after middlewareres.send("hello, world!");
 app.use(paths.base, BaseRouter);
 
@@ -45,4 +49,7 @@ app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
+  console.log(
+    `Swagger docs are available at http://localhost:${port}/api-docs`
+  );
 });
