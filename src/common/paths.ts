@@ -13,7 +13,7 @@ export default {
     base: "/user",
     // get: "/all",
     // add: "/add",
-    // update: "/update",
+    // update: "/update/:id",
     // delete: "/delete/:id",
   },
   picture: {
@@ -25,6 +25,18 @@ export default {
     base: "/diary",
     get: "/all",
     info: "/:id",
+    addNote: "/add/note",
+    addPhoto: "/add/photo",
+    sendNote: "/send/note",
+    sendPhoto: "/send/photo",
+  },
+  dog: {
+    base: "/dog",
+    get: "/all",
+    reservationsToday: "/reservations/today",
+    info: "/info/:id",
     add: "/add",
+    update: "/update/:id",
+    delete: "/delete/:id",
   },
 } as const; //읽기 전용으로
