@@ -104,6 +104,6 @@ export const reservationsToday = asyncWrapper(
       })
     );
 
-    successResponse(res, { ...dogsWithStatus }, "Dogs retrieved successfully");
+    successResponse(res, { dogsWithStatus }, "Dogs retrieved successfully");
   }
 );

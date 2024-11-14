@@ -143,114 +143,114 @@ router.delete(paths.dog.delete, deleteDog);
  *               properties:
  *                 status:
  *                   type: string
- *                   example: success
+ *                   description: Response status
  *                 message:
  *                   type: string
- *                   example: Dogs retrieved successfully
+ *                   description: Success message
  *                 data:
  *                   type: object
  *                   properties:
- *                     dogs:
+ *                     dogsWithStatus:
  *                       type: array
  *                       items:
  *                         type: object
  *                         properties:
  *                           id:
  *                             type: integer
- *                             example: 1
+ *                             description: Dog's unique ID
  *                           name:
  *                             type: string
- *                             example: billy
+ *                             description: Dog's name
  *                           sex:
  *                             type: string
- *                             example: Female
+ *                             description: Dog's sex (e.g., Male, Female)
  *                           isNeutered:
  *                             type: boolean
- *                             example: true
+ *                             description: Neutering status
  *                           bod:
  *                             type: string
  *                             format: date-time
- *                             example: "2022-08-09T00:00:00.000Z"
+ *                             description: Date of birth
  *                           breed:
  *                             type: string
- *                             example: retriever
+ *                             description: Dog's breed
  *                           medication:
  *                             type: string
- *                             example: ""
+ *                             description: Medication details if any
  *                           lastNoteAt:
  *                             type: string
  *                             format: date-time
  *                             nullable: true
- *                             example: null
+ *                             description: Date of last diary note
  *                           lastPicsAt:
  *                             type: string
  *                             format: date-time
  *                             nullable: true
- *                             example: null
+ *                             description: Date of last picture upload
  *                           ownerId:
  *                             type: integer
- *                             example: 1
+ *                             description: Owner's ID
  *                           diaryNote:
  *                             type: object
  *                             nullable: true
+ *                             description: Diary note details
  *                             properties:
  *                               diaryNoteStatus:
  *                                 type: string
  *                                 description: Status of the diary note
- *                                 example: draft
  *                               id:
  *                                 type: integer
- *                                 example: 1
+ *                                 description: Diary note ID
  *                               activities:
  *                                 type: string
- *                                 example: "활동활동활동"
+ *                                 description: Activities noted
  *                               createdAt:
  *                                 type: string
  *                                 format: date-time
- *                                 example: "2024-11-14T11:40:38.000Z"
+ *                                 description: Date of diary creation
  *                               feedingTime:
  *                                 type: integer
- *                                 example: 0
+ *                                 description: Feeding time
  *                               feedingAmt:
  *                                 type: string
- *                                 example: "Nothing"
+ *                                 description: Amount fed
  *                               napStart:
  *                                 type: string
  *                                 format: date-time
  *                                 nullable: true
- *                                 example: null
+ *                                 description: Nap start time
  *                               napEnd:
  *                                 type: string
  *                                 format: date-time
  *                                 nullable: true
- *                                 example: null
+ *                                 description: Nap end time
  *                               note:
  *                                 type: string
- *                                 example: "논트"
+ *                                 description: Additional notes
  *                               sentAt:
  *                                 type: string
  *                                 format: date-time
  *                                 nullable: true
- *                                 example: null
+ *                                 description: Submission date
  *                               dogId:
  *                                 type: integer
- *                                 example: 2
+ *                                 description: Associated dog ID
  *                               centerId:
  *                                 type: integer
- *                                 example: 1
+ *                                 description: Associated center ID
  *                           diaryPhoto:
  *                             type: object
  *                             nullable: true
+ *                             description: Diary photo details
  *                             properties:
  *                               diaryPhotoStatus:
  *                                 type: string
  *                                 description: Status of the diary photo
- *                                 example: draft
  *                               pictures:
  *                                 type: array
  *                                 items:
  *                                   type: string
- *                                 example: []
+ *                                 description: List of photo URLs
  *       401:
  *         description: Unauthorized, authentication required
  */
