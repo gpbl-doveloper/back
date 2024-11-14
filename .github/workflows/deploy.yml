@@ -39,8 +39,10 @@ jobs:
         run: echo "${FIREBASE_ADMIN_SDK_KEY}" > "${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}"
 
       # Prisma 마이그레이션 적용
-      - name: Apply Prisma migrations
-        run: npx prisma migrate deploy
+      # - name: Apply Prisma migrations
+      #   run: npx prisma migrate deploy
+      # - name: Prisma db push
+      #   run: npx prisma db push
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -63,7 +65,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem ${SERVER_USER}@${SERVER_IP} << 'EOF'
             cd /home/ubuntu/back
             git pull origin develop
-            npm install --production
+            npm install
+            npx prisma db push
             cp src/"${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}" dist/ # copy key file into dist
             pm2 delete pawsomeday || true
             pm2 start dist/app.js --name "pawsomeday"
