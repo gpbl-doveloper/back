@@ -55,6 +55,7 @@ jobs:
           # 원격 서버로 dist 폴더와 .env 파일 복사
           scp -o StrictHostKeyChecking=no -i ssh_key.pem -r dist ${SERVER_USER}@${SERVER_IP}:/home/ubuntu/back
           scp -o StrictHostKeyChecking=no -i ssh_key.pem .env ${SERVER_USER}@${SERVER_IP}:/home/ubuntu/back/.env
+          scp -o StrictHostKeyChecking=no -i ssh_key.pem "${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}" ${SERVER_USER}@${SERVER_IP}:/home/ubuntu/back
 
           # SSH를 통해 원격 서버에서 PM2로 애플리케이션 실행
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem ${SERVER_USER}@${SERVER_IP} << 'EOF'
