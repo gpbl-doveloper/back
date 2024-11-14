@@ -26,6 +26,8 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
+        env:
+          NODE_ENV: development
         run: npm ci
 
       # .env 파일을 CI 서버에 생성
