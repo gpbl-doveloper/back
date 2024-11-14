@@ -3,6 +3,7 @@ import paths from "../common/paths";
 import diaryRoutes from "./diaryRoutes";
 import pictureRoutes from "./pictureRoutes";
 import authRouters from "./authRoutes";
+import dogRouters from "./dogRoutes";
 
 const apiRouter = Router();
 
@@ -10,6 +11,7 @@ const apiRouter = Router();
 apiRouter.use(paths.diary.base, diaryRoutes);
 apiRouter.use(paths.picture.base, pictureRoutes);
 apiRouter.use(paths.auth.base, authRouters);
+apiRouter.use(paths.dog.base, dogRouters);
 
 // **** Export default **** //
 
