@@ -13,6 +13,8 @@ jobs:
       SERVER_USER: ubuntu
       SERVER_IP: ${{ secrets.SERVER_IP }}
       ENV_FILE: ${{ secrets.ENV_FILE }}
+      FIREBASE_ADMIN_SDK_KEY: ${{secrets.FIREBASE_ADMIN_SDK_KEY}}
+      FIREBASE_ADMIN_SDK_KEY_FILE_NAME: ${{secrets.FIREBASE_ADMIN_SDK_KEY_FILE_NAME}}
 
     steps:
       - name: Checkout code
@@ -29,6 +31,10 @@ jobs:
       # .env 파일을 CI 서버에 생성
       - name: Create .env file on CI server
         run: echo "${ENV_FILE}" > .env
+
+      # Firebase Admin SDK Key 파일 생성
+      - name: Create Firebase Admin SDK Key File
+        run: echo "${FIREBASE_ADMIN_SDK_KEY}" > "${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}"
 
       # Prisma 마이그레이션 적용
       - name: Apply Prisma migrations
