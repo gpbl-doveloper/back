@@ -64,6 +64,7 @@ jobs:
             cd /home/ubuntu/back
             git pull origin develop
             npm install --production
+            cp src/"${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}" dist/ # copy key file into dist
             pm2 delete pawsomeday || true
             pm2 start dist/app.js --name "pawsomeday"
           EOF
