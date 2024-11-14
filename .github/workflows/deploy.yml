@@ -19,10 +19,13 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: |
-          npm ci # 캐시 초기화
-          npx prisma generate
-          npm run build
+        run: npm ci # 캐시 초기화
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build TypeScript
+        run: npm run build
 
       - name: Deploy to Ubuntu EC2
         env:
