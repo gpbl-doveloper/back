@@ -4,7 +4,7 @@ import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
-import { Dog } from "@prisma/client";
+import { DiaryNote, DiaryPhoto, Dog } from "@prisma/client";
 
 // TODO Get a list of all dogs
 export const getDogs = asyncWrapper(async (req: Request, res: Response) => {
@@ -62,6 +62,12 @@ export const deleteDog = asyncWrapper(async (req: Request, res: Response) => {
   successResponse(res, null, "Dog deleted successfully");
 });
 
+// 상태를 계산하는 함수
+const getStatus = (entry: { sentAt?: Date | null } | null): string => {
+  if (!entry) return "not started";
+  return entry.sentAt ? "sent" : "draft";
+};
+
 // 당일 예약되어있는 강아지의 status 반환
 export const reservationsToday = asyncWrapper(
   async (req: Request, res: Response) => {
@@ -78,17 +84,26 @@ export const reservationsToday = asyncWrapper(
 
     const dogsWithStatus = await Promise.all(
       dogs.map(async (dog) => {
-        const diaryNote = await prisma.diaryNote.findFirst({
+        const diaryNote: DiaryNote = await prisma.diaryNote.findFirst({
           where: { dogId: dog.id, createdAt: { gte: today } },
         });
-        const diaryPhoto = await prisma.diaryPhoto.findFirst({
+        const diaryPhoto: DiaryPhoto = await prisma.diaryPhoto.findFirst({
           where: { dogId: dog.id, createdAt: { gte: today } },
+          select: { pictures: true },
         });
 
-        return { ...dog, diaryNote, diaryPhoto };
+        // getStatus 함수를 사용해 각 상태를 계산
+        const diaryNoteStatus = getStatus(diaryNote);
+        const diaryPhotoStatus = getStatus(diaryPhoto);
+
+        return {
+          ...dog,
+          diaryNote: { ...diaryNote, diaryNoteStatus },
+          diaryPhoto: { ...diaryPhoto, diaryPhotoStatus },
+        };
       })
     );
 
-    successResponse(res, { dogsWithStatus }, "Dogs retrieved successfully");
+    successResponse(res, { ...dogsWithStatus }, "Dogs retrieved successfully");
   }
 );
