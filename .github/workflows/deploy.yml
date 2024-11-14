@@ -8,55 +8,53 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SERVER_USER: ubuntu
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      ENV_FILE: ${{ secrets.ENV_FILE }}
 
     steps:
-      # 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Node.js 설치
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "20"
 
-      # 종속성 설치 및 캐시 초기화
       - name: Install dependencies
         run: npm ci
+
+      # .env 파일을 CI 서버에 생성
+      - name: Create .env file on CI server
+        run: echo "${ENV_FILE}" > .env
 
       # Prisma 마이그레이션 적용
       - name: Apply Prisma migrations
         run: npx prisma migrate deploy
 
-      # Prisma 클라이언트 생성
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # TypeScript 컴파일
       - name: Build TypeScript
         run: npm run build
 
-      # 서버에 컴파일된 파일 및 .env 파일 전송
+      # 컴파일된 파일과 .env 파일을 원격 서버로 전송
       - name: Deploy to Ubuntu EC2
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SERVER_USER: ubuntu
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
           echo "${SSH_KEY}" > ssh_key.pem
           chmod 600 ssh_key.pem
 
-          # SSH를 통해 원격 서버로 이동하고, ENV_FILE의 내용을 .env 파일로 저장
+          # 원격 서버로 dist 폴더와 .env 파일 복사
+          scp -o StrictHostKeyChecking=no -i ssh_key.pem -r dist ${SERVER_USER}@${SERVER_IP}:/home/ubuntu/back
+          scp -o StrictHostKeyChecking=no -i ssh_key.pem .env ${SERVER_USER}@${SERVER_IP}:/home/ubuntu/back/.env
+
+          # SSH를 통해 원격 서버에서 PM2로 애플리케이션 실행
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem ${SERVER_USER}@${SERVER_IP} << 'EOF'
             cd /home/ubuntu/back
             git pull origin develop
             npm install --production
-
-            # GitHub Secrets에서 전달된 ENV_FILE 값을 .env 파일로 저장
-            echo "${ENV_FILE}" > .env
-
-            # PM2로 애플리케이션 실행
             pm2 delete pawsomeday || true
             pm2 start dist/app.js --name "pawsomeday"
           EOF
