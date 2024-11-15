@@ -10,6 +10,7 @@ import {
 import paths from "../common/paths";
 import auth from "../middlewares/auth";
 import loginUser from "../middlewares/loginUser";
+import { upload } from "../middlewares/multerConfig";
 
 const router = express.Router();
 
@@ -109,7 +110,14 @@ const router = express.Router();
  *       401:
  *         description: Unauthorized, authentication required
  */
-router.post(paths.dog.add, auth, loginUser, createDog);
+// TODO: update files
+router.post(
+  paths.dog.add,
+  auth,
+  loginUser,
+  upload.array("files", 100),
+  createDog
+);
 
 // Get a list of all dogs
 router.get(paths.dog.base, getDogs);

@@ -24,6 +24,7 @@ export const getDog = asyncWrapper(async (req: Request, res: Response) => {
 
 // Create a new dog
 export const createDog = asyncWrapper(async (req: Request, res: Response) => {
+  // TODO 이미지 10장 올리고 한장은 프사
   const { name, sex, isNeutered, bod, breed } = req.body;
 
   const createdDog = await prisma.dog.create({
