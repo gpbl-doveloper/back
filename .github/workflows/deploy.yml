@@ -70,4 +70,7 @@ jobs:
             cp src/"${FIREBASE_ADMIN_SDK_KEY_FILE_NAME}" dist/ # copy key file into dist
             pm2 delete pawsomeday || true
             pm2 start dist/app.js --name "pawsomeday"
+            # Prisma Studio 실행 (포트 5555에서)
+            pm2 delete prisma-studio || true
+            pm2 start npx --name prisma-studio -- prisma studio --port 5555
           EOF

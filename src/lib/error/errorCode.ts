@@ -38,6 +38,11 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.UNAUTHORIZED,
     message: "Authorization token missing",
   },
+  USER_CENTER_ID_MISSING: {
+    code: 6002,
+    statusCode: HttpStatusCodes.FORBIDDEN,
+    message: "CenterId Missing",
+  },
 
   DOG_NOT_FOUND: {
     code: 3001,
