@@ -22,13 +22,11 @@ export default {
   },
   diary: {
     base: "/diary",
-    get: "/",
+    get: "",
     addNote: "/add/note",
-    addPhoto: "/add/photo",
     updateNote: "/update/note/:id",
-    updatePhoto: "/update/photo/:id",
-    sendNote: "/send/note",
-    sendPhoto: "/send/photo",
+    sendNote: "/send/note/:id",
+    sendPhoto: "/send/photo/:id",
   },
   dog: {
     base: "/dog",
