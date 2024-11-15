@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { storageService } from "../lib/storage";
 import * as fs from "fs";
-import { File } from "@prisma/client";
+import { File, Prisma } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
@@ -96,7 +96,7 @@ export const addDiary = asyncWrapper(async (req: Request, res: Response) => {
   // TODO file upload 없어지면 id list 받을거임
   await prisma.file.updateMany({
     where: { id: { in: uploadResults.map((file) => file.id) } },
-    data: { diaryId: newDiary.id },
+    data: { diary: { connect: { id: newDiary.id } } },
   });
 
   successResponse(res, { diary: { ...newDiary, files: uploadResults } });
@@ -104,38 +104,46 @@ export const addDiary = asyncWrapper(async (req: Request, res: Response) => {
 
 export const addDiaryNote = asyncWrapper(
   async (req: Request, res: Response) => {
-    //// TODO: file upload 없앨거임
-    const files = req.files as Express.Multer.File[];
+    const centerId = req.loginUser?.centerId;
+    const {
+      activities,
+      feedingTime,
+      feedingAmt,
+      napStart,
+      napEnd,
+      note,
+      dogId,
+    } = req.body;
 
-    if (!files || files.length === 0) {
-      throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
+    if (!centerId) {
+      throw new CustomError(ErrorCode.USER_CENTER_ID_MISSING);
     }
-
-    const uploadResults: File[] = [];
-
-    for (const file of files) {
-      const filePath = file.path;
-      const destination = `uploads/${file.filename}`;
-      const newFile = await storageService.uploadFile(filePath, destination);
-
-      uploadResults.push(newFile);
-
-      // 임시 파일 삭제
-      fs.unlinkSync(filePath);
+    if (!dogId) {
+      throw new CustomError(ErrorCode.DOG_QUERY_MISSING);
     }
+    try {
+      // DiaryNote 생성
+      const newDiaryNote = await prisma.diaryNote.create({
+        data: {
+          activities,
+          feedingTime,
+          feedingAmt,
+          napStart: napStart ? new Date(napStart) : null,
+          napEnd: napEnd ? new Date(napEnd) : null,
+          note,
+          dog: { connect: { id: dogId } },
+          center: { connect: { id: centerId } },
+        },
+      });
 
-    //// diary 생성
-    const newDiary = await prisma.diary.create({
-      data: { content: req.body.content },
-    });
-
-    //// file update
-    // TODO file upload 없어지면 id list 받을거임
-    await prisma.file.updateMany({
-      where: { id: { in: uploadResults.map((file) => file.id) } },
-      data: { diaryId: newDiary.id },
-    });
-
-    successResponse(res, { diary: { ...newDiary, files: uploadResults } });
+      successResponse(res, { newDiaryNote }, "DiaryNote created successfully");
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        logError(`Prisma error creating DiaryNote: ${error.message}`);
+      } else {
+        logError(`Error creating DiaryNote: ${error}`);
+      }
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    }
   }
 );

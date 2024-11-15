@@ -34,7 +34,7 @@ export const createDog = asyncWrapper(async (req: Request, res: Response) => {
       isNeutered,
       bod: new Date(bod),
       breed,
-      ownerId: req.loginUser?.id,
+      owner: { connect: { id: req.loginUser?.id } },
     },
   });
 
@@ -64,9 +64,9 @@ export const deleteDog = asyncWrapper(async (req: Request, res: Response) => {
 });
 
 // 상태를 계산하는 함수
-const getStatus = (entry: { sentAt?: Date | null } | null): string => {
-  if (!entry) return "not started";
-  return entry.sentAt ? "sent" : "draft";
+const getStatus = (entry: { sentAt?: Date | null } | null): number => {
+  if (!entry) return 0; // "not started";
+  return entry.sentAt ? 1 : 2; // "sent" : "draft";
 };
 
 // 당일 예약되어있는 강아지의 status 반환
@@ -77,7 +77,7 @@ export const reservationsToday = asyncWrapper(
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // FIXME 당일 예약 기록에서 강아지 목록 가져오기
+    // FIXME 당일 예약 기록에서 accepted 된 강아지 목록 가져오기
     const dogs: Dog[] = await prisma.dog.findMany({
       where: name ? { name: { contains: name } } : {},
     });
@@ -98,8 +98,10 @@ export const reservationsToday = asyncWrapper(
 
         return {
           ...dog,
-          diaryNote: { ...diaryNote, diaryNoteStatus },
-          diaryPhoto: { ...diaryPhoto, diaryPhotoStatus },
+          diaryNoteStatus,
+          diaryPhotoStatus,
+          diaryNote,
+          diaryPhoto,
         };
       })
     );

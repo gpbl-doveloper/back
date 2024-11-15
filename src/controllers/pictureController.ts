@@ -9,6 +9,7 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
+  // req.loginUser?.centerId;
   const files = req.files as Express.Multer.File[];
 
   if (!files || files.length === 0) {
@@ -31,6 +32,8 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
     fs.unlinkSync(filePath);
   }
 
+  // TODO 오늘 예약 accepted 된 강아지마다 photo 생성
+
   successResponse(res, { files: uploadResults });
 });
 
@@ -38,8 +41,6 @@ export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
   const { date } = req.query;
   const dateMidnight = new Date(date ? (date as string) : Date()); // default: today
   dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
-
-  console.log(req.loginUser);
 
   // TODO 센터에서 올린 사진만
 
