@@ -7,22 +7,52 @@ import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
+import { logError } from "../middlewares/logger";
 
 export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
-  const todayMidnight = new Date();
-  todayMidnight.setHours(0, 0, 0, 0); // 시간을 자정으로 설정
-  const diaryList = await prisma.diary.findMany({
-    where: {
-      createdAt: {
-        gte: todayMidnight, // 자정 이후로 생성된 레코드만 불러옴
-      },
-    },
-    include: { files: true },
-  });
-  console.log(diaryList);
-  successResponse(res, { diaryList });
+  const { dog, date } = req.query;
+  if (!dog) throw new CustomError(ErrorCode.DOG_QUERY_MISSING);
+
+  const dateMidnight = new Date(date ? (date as string) : Date()); // default: today
+  dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
+  const nextMidnight = new Date(dateMidnight);
+  nextMidnight.setDate(nextMidnight.getDate() + 1);
+
+  console.log(Number(dateMidnight), nextMidnight);
+
+  const dogId = Number(dog);
+
+  try {
+    const [diaryPhoto, diaryNote] = await Promise.all([
+      prisma.DiaryPhoto.findFirst({
+        where: {
+          dogId,
+          sentAt: { not: null },
+          createdAt: { gte: dateMidnight, lt: nextMidnight },
+        },
+      }),
+      prisma.DiaryNote.findFirst({
+        where: {
+          dogId,
+          sentAt: { not: null },
+          createdAt: { gte: dateMidnight, lt: nextMidnight },
+        },
+      }),
+    ]);
+
+    console.log(dogId, diaryNote);
+
+    successResponse(res, {
+      diaryNote,
+      diaryPhoto,
+    });
+  } catch (error: any) {
+    logError(`Error fetching diary data: ${error.message}`);
+    throw new CustomError(ErrorCode.INTERNAL_SERVER_ERROR);
+  }
 });
 
+// TODO 삭제
 export const getDiaryInfo = asyncWrapper(
   async (req: Request, res: Response) => {
     const diary = await prisma.diary.findUnique({

@@ -44,6 +44,12 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.NOT_FOUND,
     message: "There is no such dog",
   },
+
+  DOG_QUERY_MISSING: {
+    code: 6001,
+    statusCode: HttpStatusCodes.BAD_REQUEST,
+    message: "Query Missing {dog}",
+  },
 };
 
 export default ErrorCode;

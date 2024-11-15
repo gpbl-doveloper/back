@@ -24,6 +24,7 @@ export const getDog = asyncWrapper(async (req: Request, res: Response) => {
 
 // Create a new dog
 export const createDog = asyncWrapper(async (req: Request, res: Response) => {
+  // TODO 이미지 10장 올리고 한장은 프사
   const { name, sex, isNeutered, bod, breed } = req.body;
 
   const createdDog = await prisma.dog.create({
@@ -71,16 +72,15 @@ const getStatus = (entry: { sentAt?: Date | null } | null): string => {
 // 당일 예약되어있는 강아지의 status 반환
 export const reservationsToday = asyncWrapper(
   async (req: Request, res: Response) => {
-    const name = String(req.params.name || "").trim();
+    const name = String(req.query.name || "").trim();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // FIXME 당일 예약 기록에서 강아지 목록 가져오기
     const dogs: Dog[] = await prisma.dog.findMany({
-      where: name ? { name } : {},
+      where: name ? { name: { contains: name } } : {},
     });
-    console.log(dogs);
 
     const dogsWithStatus = await Promise.all(
       dogs.map(async (dog) => {
@@ -104,6 +104,6 @@ export const reservationsToday = asyncWrapper(
       })
     );
 
-    successResponse(res, { ...dogsWithStatus }, "Dogs retrieved successfully");
+    successResponse(res, { dogsWithStatus }, "Dogs retrieved successfully");
   }
 );

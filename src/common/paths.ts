@@ -11,10 +11,9 @@ export default {
   },
   user: {
     base: "/user",
-    // get: "/all",
-    // add: "/add",
-    // update: "/update/:id",
-    // delete: "/delete/:id",
+    info: "/info/:id",
+    update: "/update",
+    delete: "/delete",
   },
   picture: {
     base: "/picture",
@@ -23,12 +22,11 @@ export default {
   },
   diary: {
     base: "/diary",
-    get: "/all",
-    info: "/:id",
+    get: "",
     addNote: "/add/note",
-    addPhoto: "/add/photo",
-    sendNote: "/send/note",
-    sendPhoto: "/send/photo",
+    updateNote: "/update/note/:id",
+    sendNote: "/send/note/:id",
+    sendPhoto: "/send/photo/:id",
   },
   dog: {
     base: "/dog",

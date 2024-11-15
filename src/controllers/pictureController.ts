@@ -20,8 +20,10 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   // upload each file to storageService
   for (const file of files) {
     const filePath = file.path;
-    const destination = `uploads/${file.filename}`;
+    const destination = `uploads/${file.filename}`; // FIXME: uploads폴더 말고
     const newFile = await storageService.uploadFile(filePath, destination);
+
+    //TODO file centerId
 
     uploadResults.push(newFile);
 
@@ -38,6 +40,8 @@ export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
   dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
 
   console.log(req.loginUser);
+
+  // TODO 센터에서 올린 사진만
 
   const files = await prisma.file.findMany({
     where: {
