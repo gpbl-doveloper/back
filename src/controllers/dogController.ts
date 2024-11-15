@@ -34,7 +34,7 @@ export const createDog = asyncWrapper(async (req: Request, res: Response) => {
       isNeutered,
       bod: new Date(bod),
       breed,
-      ownerId: req.loginUser?.id,
+      owner: { connect: { id: req.loginUser?.id } },
     },
   });
 

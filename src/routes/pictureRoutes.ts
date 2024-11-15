@@ -17,6 +17,12 @@ router.get(paths.picture.get, auth, loginUser, getFiles);
  * 여러 파일 업로드 라우트
  * 한 번에 100개 파일만
  */
-router.post(paths.picture.upload, upload.array("files", 100), uploadFiles);
+router.post(
+  paths.picture.upload,
+  upload.array("files", 100),
+  auth,
+  loginUser,
+  uploadFiles
+);
 
 export default router;
