@@ -143,7 +143,7 @@ router.delete(paths.dog.delete, deleteDog);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: A list of dogs reserved for today
+ *         description: Successfully retrieved dog reservation statuses.
  *         content:
  *           application/json:
  *             schema:
@@ -151,10 +151,10 @@ router.delete(paths.dog.delete, deleteDog);
  *               properties:
  *                 status:
  *                   type: string
- *                   description: Response status
+ *                   example: success
  *                 message:
  *                   type: string
- *                   description: Success message
+ *                   example: Dogs retrieved successfully
  *                 data:
  *                   type: object
  *                   properties:
@@ -165,102 +165,67 @@ router.delete(paths.dog.delete, deleteDog);
  *                         properties:
  *                           id:
  *                             type: integer
- *                             description: Dog's unique ID
+ *                             description: Dog's unique identifier.
+ *                             example: 1
+ *                           img:
+ *                             type: string
+ *                             description: Image URL for the dog.
+ *                             example: ""
  *                           name:
  *                             type: string
- *                             description: Dog's name
+ *                             description: Dog's name.
+ *                             example: billy
  *                           sex:
  *                             type: string
- *                             description: Dog's sex (e.g., Male, Female)
+ *                             description: Dog's sex.
+ *                             example: Femail
  *                           isNeutered:
  *                             type: boolean
- *                             description: Neutering status
+ *                             description: Indicates if the dog is neutered.
+ *                             example: true
  *                           bod:
  *                             type: string
  *                             format: date-time
- *                             description: Date of birth
+ *                             description: Dog's birth date.
+ *                             example: 2022-08-09T00:00:00.000Z
  *                           breed:
  *                             type: string
- *                             description: Dog's breed
+ *                             description: Dog's breed.
+ *                             example: retriever
  *                           medication:
  *                             type: string
- *                             description: Medication details if any
+ *                             description: Dog's medication details.
+ *                             example: ""
  *                           lastNoteAt:
  *                             type: string
  *                             format: date-time
- *                             nullable: true
- *                             description: Date of last diary note
+ *                             description: Timestamp of the last diary note.
+ *                             example: null
  *                           lastPicsAt:
  *                             type: string
  *                             format: date-time
- *                             nullable: true
- *                             description: Date of last picture upload
+ *                             description: Timestamp of the last photo upload.
+ *                             example: null
  *                           ownerId:
  *                             type: integer
- *                             description: Owner's ID
- *                           diaryNote:
- *                             type: object
- *                             nullable: true
- *                             description: Diary note details
- *                             properties:
- *                               diaryNoteStatus:
- *                                 type: string
- *                                 description: Status of the diary note
- *                               id:
- *                                 type: integer
- *                                 description: Diary note ID
- *                               activities:
- *                                 type: string
- *                                 description: Activities noted
- *                               createdAt:
- *                                 type: string
- *                                 format: date-time
- *                                 description: Date of diary creation
- *                               feedingTime:
- *                                 type: integer
- *                                 description: Feeding time
- *                               feedingAmt:
- *                                 type: string
- *                                 description: Amount fed
- *                               napStart:
- *                                 type: string
- *                                 format: date-time
- *                                 nullable: true
- *                                 description: Nap start time
- *                               napEnd:
- *                                 type: string
- *                                 format: date-time
- *                                 nullable: true
- *                                 description: Nap end time
- *                               note:
- *                                 type: string
- *                                 description: Additional notes
- *                               sentAt:
- *                                 type: string
- *                                 format: date-time
- *                                 nullable: true
- *                                 description: Submission date
- *                               dogId:
- *                                 type: integer
- *                                 description: Associated dog ID
- *                               centerId:
- *                                 type: integer
- *                                 description: Associated center ID
- *                           diaryPhoto:
- *                             type: object
- *                             nullable: true
- *                             description: Diary photo details
- *                             properties:
- *                               diaryPhotoStatus:
- *                                 type: string
- *                                 description: Status of the diary photo
- *                               pictures:
- *                                 type: array
- *                                 items:
- *                                   type: string
- *                                 description: List of photo URLs
- *       401:
- *         description: Unauthorized, authentication required
+ *                             description: Owner's unique identifier.
+ *                             example: 1
+ *                           diaryNoteStatus:
+ *                             type: integer
+ *                             description: Status of the diary note (e.g., 1 for "not started", 2 for "draft").
+ *                             example: 1
+ *                           diaryPhotoStatus:
+ *                             type: integer
+ *                             description: Status of the diary photo (e.g., 1 for "not started", 2 for "draft").
+ *                             example: 1
+ *                           diaryNoteId:
+ *                             type: integer
+ *                             description: Identifier of the associated diary note.
+ *                             example: 2
+ *                           photoLength:
+ *                             type: integer
+ *                             description: Number of photos uploaded for the dog.
+ *                             example: 0
  */
 // 당일 예약되어있는 강아지의 status 반환
 router.get(paths.dog.reservationsToday, auth, loginUser, reservationsToday);

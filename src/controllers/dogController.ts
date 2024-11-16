@@ -87,10 +87,14 @@ export const reservationsToday = asyncWrapper(
         const diaryNote: DiaryNote = await prisma.diaryNote.findFirst({
           where: { dogId: dog.id, createdAt: { gte: today } },
         });
-        const diaryPhoto: DiaryPhoto = await prisma.diaryPhoto.findFirst({
-          where: { dogId: dog.id, createdAt: { gte: today } },
-          select: { pictures: true },
-        });
+        type DiaryPhotoWithPictures = DiaryPhoto & { pictures: File[] };
+        const diaryPhoto: DiaryPhotoWithPictures =
+          await prisma.diaryPhoto.findFirst({
+            where: { dogId: dog.id, createdAt: { gte: today } },
+            include: {
+              pictures: true, // File[] 배열 포함
+            },
+          });
 
         // getStatus 함수를 사용해 각 상태를 계산
         const diaryNoteStatus = getStatus(diaryNote);
@@ -100,8 +104,8 @@ export const reservationsToday = asyncWrapper(
           ...dog,
           diaryNoteStatus,
           diaryPhotoStatus,
-          diaryNote,
-          diaryPhoto,
+          diaryNoteId: diaryNote?.id,
+          photoLength: diaryPhoto?.pictures.length,
         };
       })
     );
