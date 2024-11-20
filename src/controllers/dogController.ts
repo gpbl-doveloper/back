@@ -135,9 +135,15 @@ export const updateDog = asyncWrapper(async (req: Request, res: Response) => {
   successResponse(res, { dog: updatedDog }, "Dog updated successfully");
 });
 
-// TODO Delete a specific dog by ID
+// Delete a specific dog by ID
 export const deleteDog = asyncWrapper(async (req: Request, res: Response) => {
   const dogId = Number(req.params.id);
+
+  await prisma.dog
+    .findUniqueOrThrow({ where: { id: dogId, ownerId: req.loginUser?.id } })
+    .catch(() => {
+      throw new CustomError(ErrorCode.DOG_NOT_FOUND);
+    });
 
   await prisma.dog.delete({ where: { id: dogId } });
 

@@ -482,6 +482,65 @@ router.get(paths.dog.info, auth, getDog);
 // Update a specific dog by ID
 router.put(paths.dog.update, auth, loginUser, updateDog);
 
+/**
+ * @swagger
+ * /api/dog/delete/{id}:
+ *   delete:
+ *     summary: Delete a specific dog by ID
+ *     description: Deletes a specific dog from the database by its ID.
+ *     tags:
+ *       - Dog
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the dog to delete
+ *     responses:
+ *       200:
+ *         description: Dog deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Dog deleted successfully
+ *                 data:
+ *                   type: null
+ *                   example: null
+ *       404:
+ *         description: Dog not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Dog not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
 // Delete a specific dog by ID
 router.delete(paths.dog.delete, auth, loginUser, deleteDog);
 
