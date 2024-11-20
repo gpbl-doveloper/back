@@ -73,7 +73,7 @@ model Dog {
 
   diaryNotes   DiaryNote[]   @relation("DiaryNoteDogRelation")
   diaryPhotos  DiaryPhoto[]  @relation("DiaryPhotoDogRelation")
-  facefiles    File[]        @relation("facefileRelation")
+  facefiles    File[]        @relation("FacefileRelation")
   reservations Reservation[] @relation("ReservationDogRelation")
 }
 
@@ -112,11 +112,11 @@ model File {
   fileURL   String
   createdAt DateTime @default(now())
 
-  center       Center?     @relation("CenterFileRelation", fields: [dogId], references: [id])
+  center       Center?     @relation("CenterFileRelation", fields: [centerId], references: [id])
   centerId     Int?
   diaryPhoto   DiaryPhoto? @relation("DiaryPhotoFileRelation", fields: [diaryPhotoId], references: [id])
   diaryPhotoId Int?
-  dog          Dog?        @relation("facefileRelation", fields: [dogId], references: [id])
+  dog          Dog?        @relation("FacefileRelation", fields: [dogId], references: [id])
   dogId        Int?
 }
 

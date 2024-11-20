@@ -9,7 +9,7 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
-  // req.loginUser?.centerId;
+  const centerId = req.loginUser?.centerId;
   const files = req.files as Express.Multer.File[];
 
   if (!files || files.length === 0) {
@@ -21,10 +21,15 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   // upload each file to storageService
   for (const file of files) {
     const filePath = file.path;
-    const destination = `uploads/${file.filename}`; // FIXME: uploads폴더 말고
-    const newFile = await storageService.uploadFile(filePath, destination);
-
-    //TODO file centerId
+    const destination = `uploads/${centerId}/${Date.now()}/${file.filename}`;
+    const location = await storageService.uploadFile(filePath, destination);
+    const newFile = await prisma.file.create({
+      data: {
+        fileKey: destination,
+        fileURL: location,
+        center: { connect: { id: centerId } },
+      },
+    });
 
     uploadResults.push(newFile);
 

@@ -1,9 +1,5 @@
 import express from "express";
-import {
-  addDiary,
-  getDiary,
-  addDiaryNote,
-} from "../controllers/diaryController";
+import { getDiary, addDiaryNote } from "../controllers/diaryController";
 import paths from "../common/paths";
 import auth from "../middlewares/auth";
 import loginUser from "../middlewares/loginUser";
@@ -258,11 +254,11 @@ router.post(paths.diary.addNote, auth, loginUser, addDiaryNote);
 /**
  * 다이어리 Note 보내기 라우트
  */
-router.post(paths.diary.sendNote, addDiary);
+router.post(paths.diary.sendNote, addDiaryNote);
 
 /**
  * 다이어리 Photo 보내기 라우트
  */
-router.post(paths.diary.sendPhoto, addDiary);
+router.post(paths.diary.sendPhoto, addDiaryNote);
 
 export default router;

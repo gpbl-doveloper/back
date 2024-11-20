@@ -16,7 +16,7 @@ const ErrorCode: { [key: string]: TErrorCode } = {
   NO_FILES_UPLOADED: {
     code: 5001,
     statusCode: HttpStatusCodes.BAD_REQUEST, //400
-    message: "No files uploaded",
+    message: "At least one file must be uploaded.",
   },
   USER_ALREADY_EXIST: {
     code: 4001,
@@ -48,6 +48,11 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     code: 3001,
     statusCode: HttpStatusCodes.NOT_FOUND,
     message: "There is no such dog",
+  },
+  NOT_A_PARENT: {
+    code: 3002,
+    statusCode: HttpStatusCodes.FORBIDDEN,
+    message: "Not a parent",
   },
 
   DOG_QUERY_MISSING: {
