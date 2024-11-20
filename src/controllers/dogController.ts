@@ -6,7 +6,8 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 import { DiaryNote, DiaryPhoto, Dog, File } from "@prisma/client";
 import { storageService } from "../lib/storage";
-import * as fs from "fs";
+import { promises as fs } from "fs";
+import { logError } from "../middlewares/logger";
 
 // Get a list of all dogs of owner
 export const getDogs = asyncWrapper(async (req: Request, res: Response) => {
@@ -51,28 +52,52 @@ export const createDog = asyncWrapper(async (req: Request, res: Response) => {
     throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
   }
 
-  const uploadResults: File[] = [];
+  const uploadedFiles: File[] = [];
+  try {
+    for (const file of files) {
+      const filePath = file.path;
+      const destination = `dogs/${createdDog.id}/${file.filename}`;
+      const location = await storageService.uploadFile(filePath, destination);
 
-  // upload each file to storageService
-  for (const file of files) {
-    const filePath = file.path;
-    const destination = `dogs/${createdDog.id}/${file.filename}`;
-    const location = await storageService.uploadFile(filePath, destination);
-    const newFile = await prisma.file.create({
-      data: {
-        fileKey: destination,
-        fileURL: location,
-        dog: { connect: { id: createdDog.id } },
-      },
-    });
+      const createdFile = await prisma.file.create({
+        data: {
+          fileKey: destination,
+          fileURL: location,
+          dog: { connect: { id: createdDog.id } },
+        },
+      });
+      uploadedFiles.push(createdFile);
 
-    uploadResults.push(newFile);
-
-    // unlink temp file
-    fs.unlinkSync(filePath);
+      await fs.unlink(filePath); // async unlinking
+    }
+  } catch (error: any) {
+    // Cleanup on failure
+    logError(`Error during file upload: ${error.message}`);
+    try {
+      for (const file of uploadedFiles) {
+        await storageService.deleteFile(file.fileKey);
+      }
+    } catch (cleanupError) {
+      logError(`File cleanup failed: ${cleanupError}`);
+    }
+    throw error;
   }
 
-  successResponse(res, { dog: createdDog }, "Dog created successfully");
+  if (uploadedFiles.length === 0) {
+    throw new Error("No files were successfully uploaded.");
+  }
+
+  const result = await prisma.dog.update({
+    where: {
+      id: createdDog.id,
+    },
+    data: {
+      img: uploadedFiles[0].fileURL,
+    },
+    include: { facefiles: true },
+  });
+
+  successResponse(res, { dog: result }, "Dog created successfully");
 });
 
 // TODO Update a specific dog by ID

@@ -16,7 +16,7 @@ const ErrorCode: { [key: string]: TErrorCode } = {
   NO_FILES_UPLOADED: {
     code: 5001,
     statusCode: HttpStatusCodes.BAD_REQUEST, //400
-    message: "No files uploaded",
+    message: "At least one file must be uploaded.",
   },
   USER_ALREADY_EXIST: {
     code: 4001,

@@ -18,40 +18,44 @@ const router = express.Router();
  * @swagger
  * /api/dog/add:
  *   post:
- *     summary: Create a new dog profile
- *     description: Adds a new dog profile to the system with the provided details.
+ *     summary: Create a new dog
+ *     description: Creates a new dog record, uploads associated files, and returns the created dog along with uploaded file details.
  *     tags:
  *       - Dog
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
- *                 description: Dog's name
- *                 example: billy
+ *                 description: Name of the dog
+ *                 example: Billy
  *               sex:
  *                 type: string
- *                 description: Dog's gender (Male or Female)
- *                 example: Female
+ *                 description: Gender of the dog
+ *                 example: Male
  *               isNeutered:
  *                 type: boolean
- *                 description: Indicates if the dog is neutered
+ *                 description: Whether the dog is neutered
  *                 example: true
  *               bod:
  *                 type: string
  *                 format: date
- *                 description: Dog's birthdate in YYYY-MM-DD format
+ *                 description: Birth date of the dog
  *                 example: 2022-08-09
  *               breed:
  *                 type: string
- *                 description: Dog's breed
- *                 example: retriever
+ *                 description: Breed of the dog
+ *                 example: Retriever
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Images or files associated with the dog
  *     responses:
  *       200:
  *         description: Dog created successfully
@@ -74,43 +78,87 @@ const router = express.Router();
  *                       properties:
  *                         id:
  *                           type: integer
- *                           example: 1
+ *                           example: 12
+ *                         img:
+ *                           type: string
+ *                           example: https://dovelopers-bucket.s3.us-west-1.amazonaws.com/dogs/12/1732091646780.jpg
  *                         name:
  *                           type: string
- *                           example: billy
+ *                           example: Billy
  *                         sex:
  *                           type: string
- *                           example: Female
+ *                           example: Male
  *                         isNeutered:
  *                           type: boolean
  *                           example: true
  *                         bod:
  *                           type: string
  *                           format: date-time
- *                           example: "2022-08-09T00:00:00.000Z"
+ *                           example: 2022-08-09T00:00:00.000Z
  *                         breed:
  *                           type: string
- *                           example: retriever
+ *                           example: Retriever
  *                         medication:
  *                           type: string
  *                           example: ""
  *                         lastNoteAt:
  *                           type: string
  *                           format: date-time
+ *                           nullable: true
  *                           example: null
  *                         lastPicsAt:
  *                           type: string
  *                           format: date-time
+ *                           nullable: true
  *                           example: null
  *                         ownerId:
  *                           type: integer
  *                           example: 1
+ *                         facefiles:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 example: 31
+ *                               fileKey:
+ *                                 type: string
+ *                                 example: dogs/12/1732091646780.jpg
+ *                               fileURL:
+ *                                 type: string
+ *                                 example: https://dovelopers-bucket.s3.us-west-1.amazonaws.com/dogs/12/1732091646780.jpg
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: 2024-11-20T08:34:06.949Z
+ *                               centerId:
+ *                                 type: integer
+ *                                 nullable: true
+ *                                 example: null
+ *                               diaryPhotoId:
+ *                                 type: integer
+ *                                 nullable: true
+ *                                 example: null
+ *                               dogId:
+ *                                 type: integer
+ *                                 example: 12
  *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized, authentication required
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: At least one file must be uploaded.
+ *       500:
+ *         description: Internal server error
  */
-// TODO: update files
 router.post(
   paths.dog.add,
   auth,
