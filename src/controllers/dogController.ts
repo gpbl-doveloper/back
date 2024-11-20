@@ -4,7 +4,9 @@ import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
-import { DiaryNote, DiaryPhoto, Dog } from "@prisma/client";
+import { DiaryNote, DiaryPhoto, Dog, File } from "@prisma/client";
+import { storageService } from "../lib/storage";
+import * as fs from "fs";
 
 // Get a list of all dogs of owner
 export const getDogs = asyncWrapper(async (req: Request, res: Response) => {
@@ -31,19 +33,44 @@ export const getDog = asyncWrapper(async (req: Request, res: Response) => {
 
 // Create a new dog
 export const createDog = asyncWrapper(async (req: Request, res: Response) => {
-  // TODO 이미지 10장 올리고 한장은 프사
   const { name, sex, isNeutered, bod, breed } = req.body;
+  const files = req.files as Express.Multer.File[];
 
   const createdDog = await prisma.dog.create({
     data: {
       name,
       sex,
-      isNeutered,
-      bod: new Date(bod),
+      isNeutered: Boolean(isNeutered),
+      bod: new Date((bod as string) || 0),
       breed,
       owner: { connect: { id: req.loginUser?.id } },
     },
   });
+
+  if (!files || files.length === 0) {
+    throw new CustomError(ErrorCode.NO_FILES_UPLOADED);
+  }
+
+  const uploadResults: File[] = [];
+
+  // upload each file to storageService
+  for (const file of files) {
+    const filePath = file.path;
+    const destination = `dogs/${createdDog.id}/${file.filename}`;
+    const location = await storageService.uploadFile(filePath, destination);
+    const newFile = await prisma.file.create({
+      data: {
+        fileKey: destination,
+        fileURL: location,
+        dog: { connect: { id: createdDog.id } },
+      },
+    });
+
+    uploadResults.push(newFile);
+
+    // unlink temp file
+    fs.unlinkSync(filePath);
+  }
 
   successResponse(res, { dog: createdDog }, "Dog created successfully");
 });

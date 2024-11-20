@@ -1,9 +1,7 @@
 import * as admin from "firebase-admin";
-import prisma from "../prisma";
-import { File } from "@prisma/client";
 
 interface StorageService {
-  uploadFile(filePath: string, destination: string): Promise<File>;
+  uploadFile(filePath: string, destination: string): Promise<string>;
   getFileURL(fileKey: string): Promise<string>;
   deleteFile(fileKey: string): Promise<void>;
 }
@@ -13,7 +11,7 @@ let storageService: StorageService;
 export class FirebaseStorageService implements StorageService {
   private bucket = admin.storage().bucket();
 
-  async uploadFile(filePath: string, destination: string): Promise<File> {
+  async uploadFile(filePath: string, destination: string): Promise<string> {
     const [file] = await this.bucket.upload(filePath, { destination });
 
     const downloadURL = await file.getSignedUrl({
@@ -21,15 +19,7 @@ export class FirebaseStorageService implements StorageService {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // now + 7 days
     });
 
-    const newfile = await prisma.file.create({
-      data: {
-        fileKey: destination,
-        fileURL: downloadURL[0],
-      },
-    });
-    console.log(`Created file: ${JSON.stringify(newfile)}`);
-
-    return newfile;
+    return downloadURL[0];
   }
 
   // fileKey: location of the file at Firebase Storage
@@ -63,7 +53,7 @@ const s3 = new S3Client({ region: process.env.AWS_REGION as string });
 export class S3StorageService implements StorageService {
   private bucketName = process.env.AWS_BUCKET_NAME as string;
 
-  async uploadFile(filePath: string, destination: string): Promise<File> {
+  async uploadFile(filePath: string, destination: string): Promise<string> {
     try {
       const fileStream = fs.createReadStream(filePath);
 
@@ -76,17 +66,9 @@ export class S3StorageService implements StorageService {
         },
       });
 
-      const { Location } = await upload.done();
+      const { Location } = await upload.done(); // FIXME: undefined -> throw error
 
-      const newFile = await prisma.file.create({
-        data: {
-          fileKey: destination,
-          fileURL: Location,
-        },
-      });
-
-      console.log(`Created file: ${JSON.stringify(newFile)}`);
-      return newFile;
+      return Location ? Location : "";
     } catch (error) {
       console.error("Error uploading file to S3:", error);
       throw new Error("File upload failed");
