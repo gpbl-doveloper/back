@@ -6,9 +6,16 @@ import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 import { DiaryNote, DiaryPhoto, Dog } from "@prisma/client";
 
-// TODO Get a list of all dogs
+// Get a list of all dogs of owner
 export const getDogs = asyncWrapper(async (req: Request, res: Response) => {
-  const dogs = await prisma.dog.findMany();
+  const userId = req.loginUser?.id;
+
+  if (req.loginUser?.role !== "PARENT")
+    throw new CustomError(ErrorCode.NOT_A_PARENT);
+
+  const dogs = await prisma.dog.findMany({
+    where: { ownerId: userId },
+  });
   successResponse(res, { dogs }, "Dogs retrieved successfully");
 });
 

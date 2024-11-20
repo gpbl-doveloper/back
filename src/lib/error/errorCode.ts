@@ -49,6 +49,11 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.NOT_FOUND,
     message: "There is no such dog",
   },
+  NOT_A_PARENT: {
+    code: 3002,
+    statusCode: HttpStatusCodes.FORBIDDEN,
+    message: "Not a parent",
+  },
 
   DOG_QUERY_MISSING: {
     code: 6001,

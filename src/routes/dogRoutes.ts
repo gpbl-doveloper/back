@@ -119,8 +119,93 @@ router.post(
   createDog
 );
 
+/**
+ * @swagger
+ * /api/dog/all:
+ *   get:
+ *     summary: Retrieve a list of all dogs owned by the current user
+ *     description: Fetch a list of all dogs belonging to the logged-in user. Only users with the "PARENT" role can access this endpoint.
+ *     tags:
+ *       - Dog
+ *     responses:
+ *       200:
+ *         description: Dogs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Dogs retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     dogs:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           img:
+ *                             type: string
+ *                             example: ""
+ *                           name:
+ *                             type: string
+ *                             example: billy
+ *                           sex:
+ *                             type: string
+ *                             example: Female
+ *                           isNeutered:
+ *                             type: boolean
+ *                             example: true
+ *                           bod:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2022-08-09T00:00:00.000Z
+ *                           breed:
+ *                             type: string
+ *                             example: retriever
+ *                           medication:
+ *                             type: string
+ *                             example: ""
+ *                           lastNoteAt:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
+ *                             example: null
+ *                           lastPicsAt:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
+ *                             example: null
+ *                           ownerId:
+ *                             type: integer
+ *                             example: 1
+ *       403:
+ *         description: User is not authorized to access this resource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 3002
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 403
+ *                 message:
+ *                   type: string
+ *                   example: Not a parent
+ */
 // Get a list of all dogs
-router.get(paths.dog.base, getDogs);
+router.get(paths.dog.get, auth, loginUser, getDogs);
 
 /**
  * @swagger
