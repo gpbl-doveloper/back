@@ -122,8 +122,95 @@ router.post(
 // Get a list of all dogs
 router.get(paths.dog.base, getDogs);
 
+/**
+ * @swagger
+ * /api/dog/info/{id}:
+ *   get:
+ *     summary: Retrieve dog information
+ *     description: Fetch detailed information of a specific dog by its ID.
+ *     tags:
+ *       - Dog
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the dog to retrieve
+ *     responses:
+ *       200:
+ *         description: Dog retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Dog retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     dog:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         img:
+ *                           type: string
+ *                           example: ""
+ *                         name:
+ *                           type: string
+ *                           example: billy
+ *                         sex:
+ *                           type: string
+ *                           example: Female
+ *                         isNeutered:
+ *                           type: boolean
+ *                           example: true
+ *                         bod:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2022-08-09T00:00:00.000Z
+ *                         breed:
+ *                           type: string
+ *                           example: retriever
+ *                         medication:
+ *                           type: string
+ *                           example: ""
+ *                         lastNoteAt:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
+ *                         lastPicsAt:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
+ *                         ownerId:
+ *                           type: integer
+ *                           example: 1
+ *       404:
+ *         description: Dog not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Dog not found
+ */
 // Get a specific dog by ID
-router.get(paths.dog.info, getDog);
+router.get(paths.dog.info, auth, getDog);
 
 // Update a specific dog by ID
 router.put(paths.dog.update, auth, loginUser, updateDog);

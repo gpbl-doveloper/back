@@ -12,7 +12,7 @@ export const getDogs = asyncWrapper(async (req: Request, res: Response) => {
   successResponse(res, { dogs }, "Dogs retrieved successfully");
 });
 
-// TODO Get a specific dog by ID
+// Get a specific dog by ID
 export const getDog = asyncWrapper(async (req: Request, res: Response) => {
   const dogId = Number(req.params.id);
   const dog = await prisma.dog.findUnique({ where: { id: dogId } });
