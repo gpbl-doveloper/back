@@ -100,14 +100,36 @@ export const createDog = asyncWrapper(async (req: Request, res: Response) => {
   successResponse(res, { dog: result }, "Dog created successfully");
 });
 
-// TODO Update a specific dog by ID
+// Update a specific dog by ID
 export const updateDog = asyncWrapper(async (req: Request, res: Response) => {
   const dogId = Number(req.params.id);
   const { name, sex, isNeutered, bod, breed, medication } = req.body;
 
+  await prisma.dog
+    .findUniqueOrThrow({ where: { id: dogId, ownerId: req.loginUser?.id } })
+    .catch(() => {
+      throw new CustomError(ErrorCode.DOG_NOT_FOUND);
+    });
+
+  // Dynamically add only the data to be updated
+  const updateData: Record<string, any> = {};
+
+  if (name !== undefined && name !== null) updateData.name = name;
+  if (sex !== undefined && sex !== null) updateData.sex = sex;
+  if (isNeutered !== undefined && isNeutered !== null)
+    updateData.isNeutered = Boolean(isNeutered);
+  if (bod !== undefined && bod !== null) updateData.bod = new Date(bod);
+  if (breed !== undefined && breed !== null) updateData.breed = breed;
+  if (medication !== undefined && medication !== null)
+    updateData.medication = medication;
+
+  if (Object.keys(updateData).length === 0) {
+    throw new Error("No valid fields provided for update");
+  }
+
   const updatedDog = await prisma.dog.update({
     where: { id: dogId },
-    data: { name, sex, isNeutered, bod: new Date(bod), breed, medication },
+    data: updateData,
   });
 
   successResponse(res, { dog: updatedDog }, "Dog updated successfully");

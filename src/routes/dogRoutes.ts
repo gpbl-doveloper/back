@@ -345,11 +345,145 @@ router.get(paths.dog.get, auth, loginUser, getDogs);
 // Get a specific dog by ID
 router.get(paths.dog.info, auth, getDog);
 
+/**
+ * @swagger
+ * /api/dog/update/{id}:
+ *   patch:
+ *     summary: Update a specific dog's information
+ *     description: Updates the information of a specific dog by its ID. Only the fields provided in the request body will be updated.
+ *     tags:
+ *       - Dog
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the dog to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the dog
+ *                 example: Billy
+ *               sex:
+ *                 type: string
+ *                 description: Gender of the dog
+ *                 example: Female
+ *               isNeutered:
+ *                 type: boolean
+ *                 description: Whether the dog is neutered
+ *                 example: true
+ *               bod:
+ *                 type: string
+ *                 format: date
+ *                 description: Birth date of the dog
+ *                 example: 2022-08-09
+ *               breed:
+ *                 type: string
+ *                 description: Breed of the dog
+ *                 example: Retriever
+ *               medication:
+ *                 type: string
+ *                 description: Medication details for the dog
+ *                 example: "Heartworm prevention meds"
+ *     responses:
+ *       200:
+ *         description: Dog updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Dog updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     dog:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         img:
+ *                           type: string
+ *                           example: ""
+ *                         name:
+ *                           type: string
+ *                           example: billy
+ *                         sex:
+ *                           type: string
+ *                           example: Female
+ *                         isNeutered:
+ *                           type: boolean
+ *                           example: true
+ *                         bod:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2022-08-09T00:00:00.000Z
+ *                         breed:
+ *                           type: string
+ *                           example: retriever
+ *                         medication:
+ *                           type: string
+ *                           example: "Heartworm prevention meds"
+ *                         lastNoteAt:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
+ *                         lastPicsAt:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
+ *                         ownerId:
+ *                           type: integer
+ *                           example: 1
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: No valid fields provided for update
+ *       404:
+ *         description: Dog not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Dog not found
+ *       500:
+ *         description: Internal server error
+ */
 // Update a specific dog by ID
 router.put(paths.dog.update, auth, loginUser, updateDog);
 
 // Delete a specific dog by ID
-router.delete(paths.dog.delete, deleteDog);
+router.delete(paths.dog.delete, auth, loginUser, deleteDog);
 
 /**
  * @swagger
