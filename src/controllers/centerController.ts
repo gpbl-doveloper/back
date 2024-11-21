@@ -38,12 +38,8 @@ export const getCenterById = asyncWrapper(
         include: { files: true },
       })
       .catch(() => {
-        throw Error("Center Not Found");
+        throw new CustomError(ErrorCode.CENTER_NOT_FOUND);
       });
-
-    if (!center) {
-      throw new Error("Center not found");
-    }
 
     successResponse(res, { center }, "Center retrieved successfully");
   }
@@ -85,10 +81,11 @@ export const deleteCenter = asyncWrapper(
     const centerId = Number(req.params.id);
 
     // Check if the center exists
-    const center = await prisma.center.findUnique({ where: { id: centerId } });
-    if (!center) {
-      throw new Error("Center not found");
-    }
+    await prisma.center
+      .findUniqueOrThrow({ where: { id: centerId } })
+      .catch(() => {
+        throw new CustomError(ErrorCode.CENTER_NOT_FOUND);
+      });
 
     // Delete the center
     await prisma.center.delete({
