@@ -37,4 +37,11 @@ export default {
     update: "/update/:id",
     delete: "/delete/:id",
   },
+  center: {
+    base: "/center",
+    add: "/add",
+    info: "/info/:id",
+    update: "/update/:id",
+    delete: "/delete/:id",
+  },
 } as const; //읽기 전용으로
