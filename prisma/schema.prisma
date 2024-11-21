@@ -42,17 +42,17 @@ model User {
 model Center {
   id          Int      @id @default(autoincrement())
   name        String
-  phone       String?
+  phone       String   @default("")
   description String   @default("")
+  address     String   @default("")
   createdAt   DateTime @default(now())
 
-  user   User? @relation("CenterUserRelation")
-  userId Int   @unique
+  user   User?  @relation("CenterUserRelation")
 
   diaryNotes  DiaryNote[]  @relation("DiaryNoteCenterRelation")
   diaryPhotos DiaryPhoto[] @relation("DiaryPhotoCenterRelation")
 
-  files File[] @relation("CenterFileRelation") // for temporary photo upload
+  files File[] @relation("CenterFileRelation") // for photo upload
 }
 
 model Dog {
@@ -123,7 +123,7 @@ model File {
 // enum ReservationStatus {
 //   PENDDING
 //   ACCEPTED
-//   REJECTED
+//   DECLINED
 // }
 model Reservation {
   id        Int      @id @default(autoincrement())
