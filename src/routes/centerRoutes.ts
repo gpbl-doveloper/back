@@ -4,6 +4,7 @@ import {
   getCenterById,
   updateCenter,
   deleteCenter,
+  searchCenters,
 } from "../controllers/centerController";
 import paths from "../common/paths";
 import auth from "../middlewares/auth";
@@ -415,5 +416,91 @@ router.put(paths.center.update, auth, loginUser, updateCenter);
  */
 // Delete a specific center by ID
 router.delete(paths.center.delete, auth, loginUser, deleteCenter);
+
+/**
+ * @swagger
+ * /api/center/search:
+ *   get:
+ *     summary: Search for centers by name
+ *     description: Retrieve a list of centers whose names partially match the search query.
+ *     tags:
+ *       - Center
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The partial or full name of the center to search for
+ *     responses:
+ *       200:
+ *         description: Centers retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Centers retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     centers:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           name:
+ *                             type: string
+ *                             example: Happy Paws Daycare
+ *                           phone:
+ *                             type: string
+ *                             example: 123-456-7890
+ *                           description:
+ *                             type: string
+ *                             example: A safe and loving place for your pets.
+ *                           address:
+ *                             type: string
+ *                             example: 1234 Pet Street, Petville, CA 12345
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2024-11-20T08:00:00.000Z
+
+ *       400:
+ *         description: Bad request - missing or invalid query parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Query parameter 'name' is required and must be a string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get(paths.center.search, auth, loginUser, searchCenters);
 
 export default router;

@@ -43,5 +43,6 @@ export default {
     info: "/info/:id",
     update: "/update/:id",
     delete: "/delete/:id",
+    search: "/search",
   },
 } as const; //읽기 전용으로
