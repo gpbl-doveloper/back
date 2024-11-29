@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { storageService } from "../lib/storage";
 import * as fs from "fs";
-import { File } from "@prisma/client";
+import { File, Reservation } from "@prisma/client";
 import { asyncWrapper } from "../middlewares/async";
 import prisma from "../lib/prisma";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
+
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   const centerId = req.loginUser?.centerId;
@@ -67,18 +68,20 @@ const classifyImagesUrl = 'http://44.203.88.250:8000/classifyImages/'
 
 // 오늘 예약한 강아지의 리스트를 가져오는 함수
 
-async function getTodayReservedDogIds() {
+async function getTodayReservedDogIds(date:Date) {
   // 오늘의 날짜 범위 계산
-  const todayStart = startOfDay(new Date());
-  const todayEnd = endOfDay(new Date());
+  const dateMidnight = new Date(date ? date : Date()); // default: today
+  dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
+  const nextMidnight = new Date(dateMidnight);
+  nextMidnight.setDate(nextMidnight.getDate() + 1);
 
   try {
     // 예약이 오늘 날짜인 강아지 ID 추출
-    const reservations = await prisma.reservation.findMany({
+    const reservations:Reservation[]  = await prisma.reservation.findMany({
       where: {
         date: {
-          gte: todayStart, // 오늘 00:00:00 이후
-          lte: todayEnd,   // 오늘 23:59:59 이전
+          gte: dateMidnight, // 오늘 00:00:00 이후
+          lt: nextMidnight,   //  내일 00:00:00 전
         },
       },
       select: {
@@ -87,14 +90,13 @@ async function getTodayReservedDogIds() {
     });
 
     // 강아지 ID 배열 생성
-    const dogIds = reservations.map((reservation: { dogId: number }) => reservation.dogId);
+    const dogIds = reservations.map((reservation ) => reservation.dogId);
     console.log('Reserved dog IDs for today:', dogIds);
 
     return dogIds;
   } catch (error) {
     console.error('Error occurred during loading today dog list:', error);
-  } finally {
-    await prisma.$disconnect();
+    throw error;
   }
 }
 
