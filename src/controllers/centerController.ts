@@ -95,3 +95,25 @@ export const deleteCenter = asyncWrapper(
     successResponse(res, null, "Center deleted successfully");
   }
 );
+
+export const searchCenters = asyncWrapper(
+  async (req: Request, res: Response) => {
+    const { name } = req.query;
+
+    // Validate query parameter
+    if (!name) {
+      throw Error("Query parameter 'name' is required and must be a string");
+    }
+
+    // Search for centers by name
+    const centers = await prisma.center.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+      },
+    });
+
+    successResponse(res, { centers }, "Centers retrieved successfully");
+  }
+);

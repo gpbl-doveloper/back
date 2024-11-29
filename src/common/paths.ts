@@ -43,5 +43,14 @@ export default {
     info: "/info/:id",
     update: "/update/:id",
     delete: "/delete/:id",
+    search: "/search",
+  },
+  reservation: {
+    base: "/reservation",
+    add: "/add",
+    ownerAll: "/owner/all",
+    centerAll: "/center/all",
+    accept: "/accept/:id",
+    decline: "/decline/:id",
   },
 } as const; //읽기 전용으로
