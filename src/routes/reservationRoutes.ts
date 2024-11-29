@@ -123,8 +123,8 @@ router.post(paths.reservation.add, auth, loginUser, createReservation);
  *         name: dog
  *         required: false
  *         schema:
- *           type: number
- *         description: The id of the dog to search for
+ *           type: integer
+ *         description: The ID of the dog to filter reservations by
  *     security:
  *       - bearerAuth: [] # Requires authentication token
  *     responses:
