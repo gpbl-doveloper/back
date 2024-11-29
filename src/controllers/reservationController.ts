@@ -40,6 +40,7 @@ export const createReservation = asyncWrapper(
 export const getOwnerReservations = asyncWrapper(
   async (req: Request, res: Response) => {
     const ownerId = req.loginUser?.id;
+    const dogId = Number(req.query.dog) || 0;
 
     // TODO: user role validation
     if (!ownerId) {
@@ -50,7 +51,11 @@ export const getOwnerReservations = asyncWrapper(
       where: {
         dog: {
           ownerId,
+          ...(dogId ? { id: dogId } : {}),
         },
+      },
+      include: {
+        center: true,
       },
     });
 
@@ -74,6 +79,23 @@ export const getCenterReservations = asyncWrapper(
     const reservations = await prisma.reservation.findMany({
       where: {
         centerId,
+      },
+      include: {
+        dog: {
+          include: {
+            owner: {
+              select: {
+                uid: false,
+                createdAt: false,
+                id: true,
+                name: true,
+                role: true,
+                phone: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
