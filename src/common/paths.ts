@@ -13,7 +13,7 @@ export default {
     base: "/user",
     info: "/info/:id",
     update: "/update",
-    delete: "/delete",
+    // delete: "/delete",
   },
   picture: {
     base: "/picture",
@@ -53,4 +53,4 @@ export default {
     accept: "/accept/:id",
     decline: "/decline/:id",
   },
-} as const; //읽기 전용으로
+} as const; // read-only
