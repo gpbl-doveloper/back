@@ -548,17 +548,17 @@ router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
  *   get:
  *     tags:
  *       - Diary
- *     summary: 다이어리 노트 정보 조회
+ *     summary: Get diary note information
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: 다이어리 노트 ID
+ *         description: Diary note ID
  *     responses:
  *       200:
- *         description: 다이어리 노트 정보 조회 성공
+ *         description: Successfully retrieved diary note information
  *         content:
  *           application/json:
  *             schema:
@@ -602,10 +602,11 @@ router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
  *                         centerId:
  *                           type: integer
  *       404:
- *         description: 다이어리 노트를 찾을 수 없음
+ *         description: Diary note not found
  *       500:
- *         description: 서버 내부 오류
+ *         description: Internal server error
  */
+// 다이어리 Note 정보 조회 라우트
 router.get(paths.diary.getNoteInfo, auth, loginUser, getNoteInfo);
 
 /**
@@ -613,7 +614,7 @@ router.get(paths.diary.getNoteInfo, auth, loginUser, getNoteInfo);
  * /api/diary/photo/{id}:
  *   get:
  *     tags:
- *       - diary
+ *       - Diary
  *     summary: Get diary photo information
  *     description: Retrieve detailed information for a specific diary photo
  *     parameters:
