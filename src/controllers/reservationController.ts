@@ -115,7 +115,7 @@ export const acceptReservation = asyncWrapper(
       where: { id: reservationId },
     });
 
-    if (reservation.status !== "PENDDING") {
+    if (reservation.status == "ACCEPTED") {
       throw new Error("Reservation already processed");
     }
 
@@ -140,7 +140,7 @@ export const declineReservation = asyncWrapper(
       where: { id: reservationId },
     });
 
-    if (reservation.status !== "PENDDING") {
+    if (reservation.status == "DECLINED") {
       throw Error("Reservation already processed");
     }
 

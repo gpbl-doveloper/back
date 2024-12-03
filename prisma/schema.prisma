@@ -132,7 +132,7 @@ model Reservation {
   dog       Dog      @relation("ReservationDogRelation", fields: [dogId], references: [id])
   dogId     Int
   date      DateTime @default(now())
-  status    String   @default("PENDDING")
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
   center    Center   @relation("ReservationCenterRelation", fields: [centerId], references: [id])
   centerId  Int
