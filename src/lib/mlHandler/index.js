@@ -1,4 +1,4 @@
-import prisma from "../prisma/index.js";
+import prisma from "../prisma/index.ts";
 import axios from "axios";
 
 // 날짜 유틸 함수: 오늘 날짜를 YYYY-MM-DD 형식으로 반환
