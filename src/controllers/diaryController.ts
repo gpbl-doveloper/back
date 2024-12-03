@@ -194,3 +194,35 @@ export const sendPhoto = asyncWrapper(async (req: Request, res: Response) => {
 
   successResponse(res, { sentPhoto }, "DiaryPhoto sent successfully");
 });
+
+export const getNoteInfo = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const note = await prisma.diaryNote
+    .findUniqueOrThrow({
+      where: { id: Number(id) },
+    })
+    .catch((error: any) => {
+      logError(`Error fetching DiaryNote: ${error}`);
+      throw error;
+    });
+
+  successResponse(res, { note }, "DiaryNote info retrieved successfully");
+});
+
+export const getPhotoInfo = asyncWrapper(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const photo = await prisma.diaryPhoto
+      .findUniqueOrThrow({
+        where: { id: Number(id) },
+      })
+      .catch((error: unknown) => {
+        logError(`Error fetching DiaryPhoto: ${error}`);
+        throw error;
+      });
+
+    successResponse(res, { photo }, "DiaryPhoto info retrieved successfully");
+  }
+);

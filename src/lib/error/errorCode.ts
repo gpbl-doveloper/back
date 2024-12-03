@@ -73,7 +73,7 @@ const ErrorCode: { [key: string]: TErrorCode } = {
   FILE_NOT_FOUND: {
     code: 6003,
     statusCode: HttpStatusCodes.NOT_FOUND,
-    message: "File not found",
+    message: "No such file exists",
   },
 };
 

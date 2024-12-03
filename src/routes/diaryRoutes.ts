@@ -5,6 +5,8 @@ import {
   updateNote,
   sendNote,
   sendPhoto,
+  getNoteInfo,
+  getPhotoInfo,
 } from "../controllers/diaryController";
 import paths from "../common/paths";
 import auth from "../middlewares/auth";
@@ -532,12 +534,80 @@ router.put(paths.diary.sendNote, auth, loginUser, sendNote);
  *                                 nullable: true
  *       404:
  *         description: Diary photo not found
- *       404:
- *         description: File not found
+ *       400:
+ *         description: No such file exists
  *       500:
  *         description: Internal server error
  */
 // 다이어리 Photo 보내기 라우트
 router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
+
+/**
+ * @swagger
+ * /api/diary/note/{id}:
+ *   get:
+ *     tags:
+ *       - Diary
+ *     summary: 다이어리 노트 정보 조회
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 다이어리 노트 ID
+ *     responses:
+ *       200:
+ *         description: 다이어리 노트 정보 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [success]
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     note:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         activities:
+ *                           type: string
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         feedingTime:
+ *                           type: integer
+ *                         feedingAmt:
+ *                           type: string
+ *                         napStart:
+ *                           type: string
+ *                           format: date-time
+ *                         napEnd:
+ *                           type: string
+ *                           format: date-time
+ *                         note:
+ *                           type: string
+ *                         sentAt:
+ *                           type: string
+ *                           format: date-time
+ *                         dogId:
+ *                           type: integer
+ *                         centerId:
+ *                           type: integer
+ *       404:
+ *         description: 다이어리 노트를 찾을 수 없음
+ *       500:
+ *         description: 서버 내부 오류
+ */
+router.get(paths.diary.getNoteInfo, auth, loginUser, getNoteInfo);
+
+router.get(paths.diary.getPhotoInfo, auth, loginUser, getPhotoInfo);
 
 export default router;
