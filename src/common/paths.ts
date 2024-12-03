@@ -13,7 +13,7 @@ export default {
     base: "/user",
     info: "/info/:id",
     update: "/update",
-    delete: "/delete",
+    // delete: "/delete",
   },
   picture: {
     base: "/picture",
@@ -27,6 +27,8 @@ export default {
     updateNote: "/update/note/:id",
     sendNote: "/send/note/:id",
     sendPhoto: "/send/photo/:id",
+    getNoteInfo: "/note/info/:id",
+    getPhotoInfo: "/photo/info/:id",
   },
   dog: {
     base: "/dog",
@@ -43,5 +45,14 @@ export default {
     info: "/info/:id",
     update: "/update/:id",
     delete: "/delete/:id",
+    search: "/search",
   },
-} as const; //읽기 전용으로
+  reservation: {
+    base: "/reservation",
+    add: "/add",
+    ownerAll: "/owner/all",
+    centerAll: "/center/all",
+    accept: "/accept/:id",
+    decline: "/decline/:id",
+  },
+} as const; // read-only

@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { storageService } from "../lib/storage";
-import * as fs from "fs";
-import { File, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
@@ -52,20 +50,6 @@ export const getDiary = asyncWrapper(async (req: Request, res: Response) => {
   }
 });
 
-// TODO 삭제
-export const getDiaryInfo = asyncWrapper(
-  async (req: Request, res: Response) => {
-    const diary = await prisma.diary.findUnique({
-      where: {
-        id: Number(req.params.id),
-      },
-      include: { files: true },
-    });
-    console.log(diary);
-    successResponse(res, { diary });
-  }
-);
-
 export const addDiaryNote = asyncWrapper(
   async (req: Request, res: Response) => {
     const centerId = req.loginUser?.centerId;
@@ -109,5 +93,143 @@ export const addDiaryNote = asyncWrapper(
       }
       throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
     }
+  }
+);
+
+export const updateNote = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { activities, feedingTime, feedingAmt, napStart, napEnd, note } =
+    req.body;
+
+  const updateData: Record<string, any> = {};
+  if (activities !== undefined && activities !== null)
+    updateData.activities = activities;
+  if (feedingTime !== undefined && feedingTime !== null)
+    updateData.feedingTime = feedingTime;
+  if (feedingAmt !== undefined && feedingAmt !== null)
+    updateData.feedingAmt = feedingAmt;
+  if (napStart !== undefined && napStart !== null)
+    updateData.napStart = new Date(napStart);
+  if (napEnd !== undefined && napEnd !== null)
+    updateData.napEnd = new Date(napEnd);
+  if (note !== undefined && note !== null) updateData.note = note;
+
+  if (Object.keys(updateData).length === 0) {
+    throw new CustomError(ErrorCode.NO_VALID_FIELDS_PROVIDED);
+  }
+
+  const updatedNote = await prisma.diaryNote
+    .update({
+      where: { id: Number(id) },
+      data: updateData,
+    })
+    .catch((error: unknown) => {
+      logError(`Error updating DiaryNote: ${error}`);
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    });
+
+  successResponse(res, { updatedNote }, "DiaryNote updated successfully");
+});
+
+export const sendNote = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const sentNote = await prisma.diaryNote
+    .update({
+      where: { id: Number(id) },
+      data: {
+        sentAt: new Date(),
+      },
+    })
+    .catch((error: unknown) => {
+      logError(`Error sending DiaryNote: ${error}`);
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    });
+
+  // TODO 추후 notification 추가
+
+  successResponse(res, { sentNote }, "DiaryNote sent successfully");
+});
+
+export const sendPhoto = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { pictureIds } = req.body;
+
+  // validate pictureIds
+  await prisma.file
+    .findMany({
+      where: { id: { in: pictureIds } },
+    })
+    .catch((error: unknown) => {
+      logError(`Error fetching files: ${error}`);
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    })
+    .then((files: any) => {
+      const fetchedIdList = files.map((file: any) => {
+        return file.id;
+      });
+
+      if (fetchedIdList.length !== pictureIds.length) {
+        throw new CustomError(ErrorCode.FILE_NOT_FOUND);
+      }
+    });
+
+  const sentPhoto = await prisma.diaryPhoto
+    .update({
+      where: { id: Number(id) },
+      data: {
+        sentAt: new Date(),
+        pictures: { connect: pictureIds.map((id: number) => ({ id })) },
+      },
+      include: {
+        pictures: true,
+      },
+    })
+    .catch((error: unknown) => {
+      logError(`Error sending DiaryPhoto: ${error}`);
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    });
+
+  // TODO 추후 notification 추가
+
+  successResponse(res, { sentPhoto }, "DiaryPhoto sent successfully");
+});
+
+export const getNoteInfo = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const diaryNote = await prisma.diaryNote
+    .findUniqueOrThrow({
+      where: { id: Number(id) },
+    })
+    .catch((error: any) => {
+      logError(`Error fetching DiaryNote: ${error}`);
+      throw error;
+    });
+
+  successResponse(res, { diaryNote }, "DiaryNote info retrieved successfully");
+});
+
+export const getPhotoInfo = asyncWrapper(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const diaryPhoto = await prisma.diaryPhoto
+      .findUniqueOrThrow({
+        where: { id: Number(id) },
+        include: {
+          pictures: true,
+        },
+      })
+      .catch((error: unknown) => {
+        logError(`Error fetching DiaryPhoto: ${error}`);
+        throw error;
+      });
+
+    successResponse(
+      res,
+      { diaryPhoto },
+      "DiaryPhoto info retrieved successfully"
+    );
   }
 );

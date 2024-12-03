@@ -5,6 +5,8 @@ import pictureRoutes from "./pictureRoutes";
 import authRouters from "./authRoutes";
 import dogRouters from "./dogRoutes";
 import centerRouters from "./centerRoutes";
+import reservationRouters from "./reservationRoutes";
+import userRouters from "./userRoutes";
 
 const apiRouter = Router();
 
@@ -14,7 +16,8 @@ apiRouter.use(paths.picture.base, pictureRoutes);
 apiRouter.use(paths.auth.base, authRouters);
 apiRouter.use(paths.dog.base, dogRouters);
 apiRouter.use(paths.center.base, centerRouters);
+apiRouter.use(paths.reservation.base, reservationRouters);
+apiRouter.use(paths.user.base, userRouters);
 
 // **** Export default **** //
-
 export default apiRouter;

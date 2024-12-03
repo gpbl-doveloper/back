@@ -7,8 +7,8 @@ import prisma from "../lib/prisma";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
+import dateFormater from "../utils/dateFormater";
 import { mlProcessor } from "../lib/mlHandler";
-
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   const centerId = req.loginUser?.centerId;
@@ -23,7 +23,9 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   // upload each file to storageService
   for (const file of files) {
     const filePath = file.path;
-    const destination = `uploads/${centerId}/${Date.now()}/${file.filename}`;
+    const destination = `uploads/${centerId}/${dateFormater(new Date())}/${
+      file.filename
+    }`; // example: uploads/1/2024-03-15/1715718700000_1.jpg
     const location = await storageService.uploadFile(filePath, destination);
     const newFile = await prisma.file.create({
       data: {
@@ -38,8 +40,6 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
     // unlink temp file
     fs.unlinkSync(filePath);
   }
-
-  // TODO 오늘 예약 accepted 된 강아지마다 photo 생성
   if (centerId) {
     console.log("invoke mlProcessor");
     mlProcessor(centerId);
@@ -52,8 +52,6 @@ export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
   const { date } = req.query;
   const dateMidnight = new Date(date ? (date as string) : Date()); // default: today
   dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
-
-  // TODO 센터에서 올린 사진만
 
   const files = await prisma.file.findMany({
     where: {

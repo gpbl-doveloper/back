@@ -65,6 +65,16 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.BAD_REQUEST,
     message: "Query Missing {dog}",
   },
+  NO_VALID_FIELDS_PROVIDED: {
+    code: 6002,
+    statusCode: HttpStatusCodes.BAD_REQUEST,
+    message: "No valid fields provided for update",
+  },
+  FILE_NOT_FOUND: {
+    code: 6003,
+    statusCode: HttpStatusCodes.NOT_FOUND,
+    message: "No such file exists",
+  },
 };
 
 export default ErrorCode;
