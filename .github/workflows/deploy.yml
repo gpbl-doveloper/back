@@ -7,9 +7,9 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
-      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_KEY: ${{ secrets.SSH_KEY }} # SSH 키
       SERVER_USER: ubuntu
       SERVER_IP: ${{ secrets.SERVER_IP }}
       ENV_FILE: ${{ secrets.ENV_FILE }}
