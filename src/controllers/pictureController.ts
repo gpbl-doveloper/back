@@ -8,6 +8,7 @@ import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
 import dateFormater from "../utils/dateFormater";
+import { mlProcessor } from "../lib/mlHandler";
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   const centerId = req.loginUser?.centerId;
@@ -38,6 +39,9 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
     // unlink temp file
     fs.unlinkSync(filePath);
+  }
+  if (centerId) {
+    mlProcessor(centerId);
   }
 
   successResponse(res, { files: uploadResults });
