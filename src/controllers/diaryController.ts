@@ -134,8 +134,6 @@ export const updateNote = asyncWrapper(async (req: Request, res: Response) => {
 export const sendNote = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  // TODO 추후 notification 추가
-
   const sentNote = await prisma.diaryNote
     .update({
       where: { id: Number(id) },
@@ -148,25 +146,51 @@ export const sendNote = asyncWrapper(async (req: Request, res: Response) => {
       throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
     });
 
+  // TODO 추후 notification 추가
+
   successResponse(res, { sentNote }, "DiaryNote sent successfully");
 });
 
 export const sendPhoto = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { pictureIds } = req.body;
 
-  // TODO 추후 notification 추가
+  // validate pictureIds
+  await prisma.file
+    .findMany({
+      where: { id: { in: pictureIds } },
+    })
+    .catch((error: unknown) => {
+      logError(`Error fetching files: ${error}`);
+      throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
+    })
+    .then((files: any) => {
+      const fetchedIdList = files.map((file: any) => {
+        return file.id;
+      });
+
+      if (fetchedIdList.length !== pictureIds.length) {
+        throw new CustomError(ErrorCode.FILE_NOT_FOUND);
+      }
+    });
 
   const sentPhoto = await prisma.diaryPhoto
     .update({
       where: { id: Number(id) },
       data: {
         sentAt: new Date(),
+        pictures: { connect: pictureIds.map((id: number) => ({ id })) },
+      },
+      include: {
+        pictures: true,
       },
     })
     .catch((error: unknown) => {
       logError(`Error sending DiaryPhoto: ${error}`);
       throw new CustomError(ErrorCode.PRISMA_INTERNAL_SERVER_ERROR);
     });
+
+  // TODO 추후 notification 추가
 
   successResponse(res, { sentPhoto }, "DiaryPhoto sent successfully");
 });

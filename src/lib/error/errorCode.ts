@@ -70,6 +70,11 @@ const ErrorCode: { [key: string]: TErrorCode } = {
     statusCode: HttpStatusCodes.BAD_REQUEST,
     message: "No valid fields provided for update",
   },
+  FILE_NOT_FOUND: {
+    code: 6003,
+    statusCode: HttpStatusCodes.NOT_FOUND,
+    message: "File not found",
+  },
 };
 
 export default ErrorCode;

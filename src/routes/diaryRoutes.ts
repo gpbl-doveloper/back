@@ -372,13 +372,172 @@ router.post(paths.diary.addNote, auth, loginUser, addDiaryNote);
 router.put(paths.diary.updateNote, auth, loginUser, updateNote);
 
 /**
- * 다이어리 Note 보내기 라우트
+ * @swagger
+ * /api/diary/send/note/{id}:
+ *   put:
+ *     summary: Send a Diary Note
+ *     description: Marks a diary note as sent by updating the sentAt timestamp. This indicates the note has been sent to the dog's owner.
+ *     tags:
+ *       - Diary
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the diary note to send
+ *     responses:
+ *       200:
+ *         description: Diary note sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: DiaryNote sent successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sentNote:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         activities:
+ *                           type: string
+ *                           example: Played fetch, walked around the park
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-15T11:40:38.000Z
+ *                         feedingTime:
+ *                           type: integer
+ *                           example: 2
+ *                         feedingAmt:
+ *                           type: string
+ *                           example: Some
+ *                         napStart:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-14T12:00:00.000Z
+ *                         napEnd:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-14T12:45:00.000Z
+ *                         note:
+ *                           type: string
+ *                           example: Had a great time playing, but seemed a bit tired afterward
+ *                         sentAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-12-03T03:15:31.939Z
+ *                         dogId:
+ *                           type: integer
+ *                           example: 2
+ *                         centerId:
+ *                           type: integer
+ *                           example: 1
+ *       404:
+ *         description: Diary note not found
+ *       500:
+ *         description: Internal server error
  */
+// 다이어리 Note 보내기 라우트
 router.put(paths.diary.sendNote, auth, loginUser, sendNote);
 
 /**
- * 다이어리 Photo 보내기 라우트
+ * @swagger
+ * /api/diary/send/photo/{id}:
+ *   put:
+ *     summary: Send a Diary Photo
+ *     description: Marks a diary photo as sent by updating the sentAt timestamp. This indicates the photos have been sent to the dog's owner.
+ *     tags:
+ *       - Diary
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the diary photo to send
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pictureIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: List of picture IDs to be sent
+ *     responses:
+ *       200:
+ *         description: Diary photo sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sentPhoto:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         sentAt:
+ *                           type: string
+ *                           format: date-time
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         dogId:
+ *                           type: integer
+ *                         centerId:
+ *                           type: integer
+ *                         pictures:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                               fileKey:
+ *                                 type: string
+ *                               fileURL:
+ *                                 type: string
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                               centerId:
+ *                                 type: integer
+ *                                 nullable: true
+ *                               diaryPhotoId:
+ *                                 type: integer
+ *                               dogId:
+ *                                 type: integer
+ *                                 nullable: true
+ *       404:
+ *         description: Diary photo not found
+ *       404:
+ *         description: File not found
+ *       500:
+ *         description: Internal server error
  */
+// 다이어리 Photo 보내기 라우트
 router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
 
 export default router;
