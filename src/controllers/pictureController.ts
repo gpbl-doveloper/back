@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { storageService } from "../lib/storage";
 import * as fs from "fs";
-import { File, Reservation } from "@prisma/client";
+import { File } from "@prisma/client";
 import { asyncWrapper } from "../middlewares/async";
 import prisma from "../lib/prisma";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
+import { mlProcessor } from "../lib/mlHandler";
 
 
 export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
@@ -39,6 +40,10 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
   }
 
   // TODO 오늘 예약 accepted 된 강아지마다 photo 생성
+  if (centerId) {
+    console.log("invoke mlProcessor");
+    mlProcessor(centerId);
+  }
 
   successResponse(res, { files: uploadResults });
 });
