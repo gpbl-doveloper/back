@@ -572,7 +572,7 @@ router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
  *                 data:
  *                   type: object
  *                   properties:
- *                     note:
+ *                     diaryNote:
  *                       type: object
  *                       properties:
  *                         id:
@@ -608,6 +608,80 @@ router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
  */
 router.get(paths.diary.getNoteInfo, auth, loginUser, getNoteInfo);
 
+/**
+ * @swagger
+ * /api/diary/photo/{id}:
+ *   get:
+ *     tags:
+ *       - diary
+ *     summary: Get diary photo information
+ *     description: Retrieve detailed information for a specific diary photo
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Diary photo ID
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved diary photo information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [success]
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     diaryPhoto:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         sentAt:
+ *                           type: string
+ *                           format: date-time
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         dogId:
+ *                           type: integer
+ *                         centerId:
+ *                           type: integer
+ *                         pictures:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                               fileKey:
+ *                                 type: string
+ *                               fileURL:
+ *                                 type: string
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                               centerId:
+ *                                 type: integer
+ *                                 nullable: true
+ *                               diaryPhotoId:
+ *                                 type: integer
+ *                               dogId:
+ *                                 type: integer
+ *                                 nullable: true
+ *       404:
+ *         description: Diary photo not found
+ *       500:
+ *         description: Internal server error
+ */
+// 다이어리 Photo 정보 조회 라우트
 router.get(paths.diary.getPhotoInfo, auth, loginUser, getPhotoInfo);
 
 export default router;

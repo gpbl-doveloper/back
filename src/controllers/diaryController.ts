@@ -198,7 +198,7 @@ export const sendPhoto = asyncWrapper(async (req: Request, res: Response) => {
 export const getNoteInfo = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const note = await prisma.diaryNote
+  const diaryNote = await prisma.diaryNote
     .findUniqueOrThrow({
       where: { id: Number(id) },
     })
@@ -207,22 +207,29 @@ export const getNoteInfo = asyncWrapper(async (req: Request, res: Response) => {
       throw error;
     });
 
-  successResponse(res, { note }, "DiaryNote info retrieved successfully");
+  successResponse(res, { diaryNote }, "DiaryNote info retrieved successfully");
 });
 
 export const getPhotoInfo = asyncWrapper(
   async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const photo = await prisma.diaryPhoto
+    const diaryPhoto = await prisma.diaryPhoto
       .findUniqueOrThrow({
         where: { id: Number(id) },
+        include: {
+          pictures: true,
+        },
       })
       .catch((error: unknown) => {
         logError(`Error fetching DiaryPhoto: ${error}`);
         throw error;
       });
 
-    successResponse(res, { photo }, "DiaryPhoto info retrieved successfully");
+    successResponse(
+      res,
+      { diaryPhoto },
+      "DiaryPhoto info retrieved successfully"
+    );
   }
 );

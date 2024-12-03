@@ -27,6 +27,8 @@ export default {
     updateNote: "/update/note/:id",
     sendNote: "/send/note/:id",
     sendPhoto: "/send/photo/:id",
+    getNoteInfo: "/note/info/:id",
+    getPhotoInfo: "/photo/info/:id",
   },
   dog: {
     base: "/dog",
