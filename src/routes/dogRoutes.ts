@@ -639,6 +639,11 @@ router.delete(paths.dog.delete, auth, loginUser, deleteDog);
  *                             type: integer
  *                             description: Number of photos uploaded for the dog.
  *                             example: 0
+  *                           diaryPhotoId:
+ *                             type: integer
+ *                             description: Identifier of the associated diary photo.
+ *                             example: 2
+
  */
 // 당일 예약되어있는 강아지의 status 반환
 router.get(paths.dog.reservationsToday, auth, loginUser, reservationsToday);

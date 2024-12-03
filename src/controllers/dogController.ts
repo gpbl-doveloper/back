@@ -159,20 +159,45 @@ const getStatus = (entry: { sentAt?: Date | null } | null): number => {
 // 당일 예약되어있는 강아지의 status 반환
 export const reservationsToday = asyncWrapper(
   async (req: Request, res: Response) => {
+    const centerId = req.loginUser?.centerId;
+
     const name = String(req.query.name || "").trim();
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0); // set time to midnight
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999); // set time to 23:59:59
 
-    // FIXME 당일 예약 기록에서 accepted 된 강아지 목록 가져오기
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        centerId,
+      },
+      select: {
+        dogId: true,
+      },
+    });
+
     const dogs: Dog[] = await prisma.dog.findMany({
-      where: name ? { name: { contains: name } } : {},
+      where: {
+        name: { contains: name },
+        id: {
+          in: reservations.map(
+            (reservation: { dogId: number }) => reservation.dogId
+          ),
+        },
+      },
     });
 
     const dogsWithStatus = await Promise.all(
       dogs.map(async (dog) => {
         const diaryNote: DiaryNote = await prisma.diaryNote.findFirst({
           where: { dogId: dog.id, createdAt: { gte: today } },
+          orderBy: { createdAt: "desc" },
         });
         type DiaryPhotoWithPictures = DiaryPhoto & { pictures: File[] };
         const diaryPhoto: DiaryPhotoWithPictures =
@@ -181,6 +206,7 @@ export const reservationsToday = asyncWrapper(
             include: {
               pictures: true, // File[] 배열 포함
             },
+            orderBy: { createdAt: "desc" },
           });
 
         // getStatus 함수를 사용해 각 상태를 계산
@@ -192,6 +218,7 @@ export const reservationsToday = asyncWrapper(
           diaryNoteStatus,
           diaryPhotoStatus,
           diaryNoteId: diaryNote?.id,
+          diaryPhotoId: diaryPhoto?.id,
           photoLength: diaryPhoto?.pictures.length,
         };
       })
