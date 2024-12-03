@@ -41,7 +41,6 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
     fs.unlinkSync(filePath);
   }
   if (centerId) {
-    console.log("invoke mlProcessor");
     mlProcessor(centerId);
   }
 
