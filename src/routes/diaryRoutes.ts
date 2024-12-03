@@ -1,5 +1,11 @@
 import express from "express";
-import { getDiary, addDiaryNote } from "../controllers/diaryController";
+import {
+  getDiary,
+  addDiaryNote,
+  updateNote,
+  sendNote,
+  sendPhoto,
+} from "../controllers/diaryController";
 import paths from "../common/paths";
 import auth from "../middlewares/auth";
 import loginUser from "../middlewares/loginUser";
@@ -252,13 +258,127 @@ router.get(paths.diary.get, auth, loginUser, getDiary);
 router.post(paths.diary.addNote, auth, loginUser, addDiaryNote);
 
 /**
+ * @swagger
+ * /api/diary/update/note/{id}:
+ *   put:
+ *     summary: Update a Diary Note
+ *     description: Updates the content of a specific diary note.
+ *     tags:
+ *       - Diary
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the diary note to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               activities:
+ *                 type: string
+ *                 description: Activities the dog participated in
+ *                 example: Played fetch, walked around the park
+ *               feedingTime:
+ *                 type: integer
+ *                 description: Feeding time (0-3)
+ *                 example: 2
+ *               feedingAmt:
+ *                 type: string
+ *                 description: Feeding amount (All, Some, Nothing)
+ *                 example: Some
+ *               napStart:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Start time of the nap
+ *                 example: 2024-11-14T12:00:00.000Z
+ *               napEnd:
+ *                 type: string
+ *                 format: date-time
+ *                 description: End time of the nap
+ *                 example: 2024-11-14T12:45:00.000Z
+ *               note:
+ *                 type: string
+ *                 description: Additional notes about the dog's behavior or condition
+ *                 example: Had a great time playing, but seemed a bit tired afterward
+ *     responses:
+ *       200:
+ *         description: Diary note updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: DiaryNote updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     updatedNote:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         activities:
+ *                           type: string
+ *                           example: Played fetch, walked around the park
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-15T11:40:38.000Z
+ *                         feedingTime:
+ *                           type: integer
+ *                           example: 2
+ *                         feedingAmt:
+ *                           type: string
+ *                           example: Some
+ *                         napStart:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-14T12:00:00.000Z
+ *                         napEnd:
+ *                           type: string
+ *                           format: date-time
+ *                           example: 2024-11-14T12:45:00.000Z
+ *                         note:
+ *                           type: string
+ *                           example: Had a great time playing, but seemed a bit tired afterward
+ *                         sentAt:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
+ *                         dogId:
+ *                           type: integer
+ *                           example: 2
+ *                         centerId:
+ *                           type: integer
+ *                           example: 1
+ *       400:
+ *         description: No valid fields provided for update
+ *       500:
+ *         description: Internal server error
+ */
+// 다이어리 Note 업데이트 라우트
+router.put(paths.diary.updateNote, auth, loginUser, updateNote);
+
+/**
  * 다이어리 Note 보내기 라우트
  */
-router.post(paths.diary.sendNote, addDiaryNote);
+router.put(paths.diary.sendNote, auth, loginUser, sendNote);
 
 /**
  * 다이어리 Photo 보내기 라우트
  */
-router.post(paths.diary.sendPhoto, addDiaryNote);
+router.put(paths.diary.sendPhoto, auth, loginUser, sendPhoto);
 
 export default router;
