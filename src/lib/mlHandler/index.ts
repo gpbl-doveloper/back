@@ -13,6 +13,10 @@ type FileType = {
   url: string;
 };
 
+type ReservationType = {
+  dogId: number;
+};
+
 type DogDataType = {
   dogId: number;
   faces: FileType[];
@@ -32,9 +36,6 @@ const fetchDailyPictures = async (centerId: number): Promise<FileType[]> => {
   startOfDay.setHours(0, 0, 0, 0); // set time to midnight
   const endOfDay = new Date(today);
   endOfDay.setHours(23, 59, 59, 999); // set time to 23:59:59
-
-  //   console.log("startOfDay", startOfDay);
-  //   console.log("endOfDay", endOfDay);
 
   const files = await prisma.file.findMany({
     where: {
@@ -58,15 +59,21 @@ const fetchDailyPictures = async (centerId: number): Promise<FileType[]> => {
   }));
 };
 
-const fetchDogsData = async (centerId: number): Promise<DogDataType[]> => {
+const fetchReservations = async (
+  centerId: number
+): Promise<ReservationType[]> => {
   const today = getTodayDate();
+  const startOfDay = new Date(today);
+  startOfDay.setHours(0, 0, 0, 0); // set time to midnight
+  const endOfDay = new Date(today);
+  endOfDay.setHours(23, 59, 59, 999); // set time to 23:59:59
+
   const reservations = await prisma.reservation.findMany({
     where: {
       date: {
-        gte: new Date(`${today}T00:00:00`),
-        lte: new Date(`${today}T23:59:59`),
+        gte: startOfDay,
+        lte: endOfDay,
       },
-      status: "ACCEPTED",
       centerId,
     },
     select: {
@@ -74,6 +81,12 @@ const fetchDogsData = async (centerId: number): Promise<DogDataType[]> => {
     },
   });
 
+  return reservations;
+};
+
+const fetchDogsData = async (
+  reservations: ReservationType[]
+): Promise<DogDataType[]> => {
   const dogIds = reservations.map(
     (reservation: { dogId: number }) => reservation.dogId
   );
@@ -116,16 +129,52 @@ const sendToFastAPI = async (
   return axios.post<FastAPIResponse>(apiUrl, requestData);
 };
 
+const createDiaryPhoto = async (
+  centerId: number,
+  dogId: number,
+  files: FileType[]
+): Promise<void> => {
+  await prisma.diaryPhoto.create({
+    data: {
+      center: {
+        connect: {
+          id: centerId,
+        },
+      },
+      dog: {
+        connect: {
+          id: dogId,
+        },
+      },
+      pictures: {
+        connect: files.map((file: FileType) => ({
+          id: file.fileId,
+        })),
+      },
+    },
+  });
+};
+
 export const mlProcessor = async (centerId: number): Promise<void> => {
   logInfo("mlProcessor started");
   const dailyPictures = await fetchDailyPictures(centerId);
-  const dogsData = await fetchDogsData(centerId);
-  await sendToFastAPI(dailyPictures, dogsData)
+  const reservations = await fetchReservations(centerId);
+  const dogsData = await fetchDogsData(reservations);
+  const results = await sendToFastAPI(dailyPictures, dogsData)
     .then((res) => {
       logInfo("Process Completed: " + JSON.stringify(res.data, null, 2));
+      return res.data.results;
     })
     .catch((err: any) => {
       logError(err);
     });
+
+  // create DiaryPhoto on every dogId
+  if (results) {
+    for (const result of results) {
+      await createDiaryPhoto(centerId, result.dogId, result.imageFiles);
+    }
+  }
+
   logInfo("mlProcessor ended");
 };
