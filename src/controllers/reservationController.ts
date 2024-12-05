@@ -4,6 +4,7 @@ import { asyncWrapper } from "../middlewares/async";
 import { successResponse } from "../common/response";
 import { CustomError } from "../lib/error/customError";
 import ErrorCode from "../lib/error/errorCode";
+import { getDateRange } from "../utils/dateUtils";
 
 export const createReservation = asyncWrapper(
   async (req: Request, res: Response) => {
@@ -23,7 +24,17 @@ export const createReservation = asyncWrapper(
         throw Error("No Such Center");
       });
 
-    // TODO: 해당 강아지가 이미 그 날짜에 예약 있으면 에러
+    // 해당 강아지가 이미 그 날짜에 예약 있으면 에러
+    const existingReservation = await prisma.reservation.findFirst({
+      where: {
+        dogId,
+        date: getDateRange(date),
+      },
+    });
+
+    if (existingReservation) {
+      throw Error("Reservation already exists");
+    }
 
     const reservation = await prisma.reservation.create({
       data: {
