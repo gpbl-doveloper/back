@@ -1,12 +1,7 @@
 import axios from "axios";
 import prisma from "../../lib/prisma";
 import { logError, logInfo } from "../../middlewares/logger";
-
-const getTodayDate = (): string => {
-  const today = new Date();
-  //   console.log("today", today);
-  return today.toISOString().split("T")[0];
-};
+import { getDateRange } from "../../utils/dateUtils";
 
 type FileType = {
   fileId: number;
@@ -31,18 +26,9 @@ type FastAPIResponse = {
 };
 
 const fetchDailyPictures = async (centerId: number): Promise<FileType[]> => {
-  const today = getTodayDate();
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0); // set time to midnight
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999); // set time to 23:59:59
-
   const files = await prisma.file.findMany({
     where: {
-      createdAt: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
+      createdAt: getDateRange(new Date()),
       centerId,
     },
     select: {
@@ -62,24 +48,17 @@ const fetchDailyPictures = async (centerId: number): Promise<FileType[]> => {
 const fetchReservations = async (
   centerId: number
 ): Promise<ReservationType[]> => {
-  const today = getTodayDate();
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0); // set time to midnight
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999); // set time to 23:59:59
-
   const reservations = await prisma.reservation.findMany({
     where: {
-      date: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
+      date: getDateRange(new Date()),
       centerId,
     },
     select: {
       dogId: true,
     },
   });
+
+  // console.log("fetchReservations", reservations);
 
   return reservations;
 };
@@ -169,10 +148,18 @@ export const mlProcessor = async (centerId: number): Promise<void> => {
       logError(err);
     });
 
-  // create DiaryPhoto on every dogId
+  const processedDogIds = new Set<number>();
+
   if (results) {
     for (const result of results) {
       await createDiaryPhoto(centerId, result.dogId, result.imageFiles);
+      processedDogIds.add(result.dogId);
+    }
+  }
+
+  for (const reservation of reservations) {
+    if (!processedDogIds.has(reservation.dogId)) {
+      await createDiaryPhoto(centerId, reservation.dogId, []);
     }
   }
 
