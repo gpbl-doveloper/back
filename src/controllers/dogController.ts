@@ -196,13 +196,13 @@ export const reservationsToday = asyncWrapper(
     const dogsWithStatus = await Promise.all(
       dogs.map(async (dog) => {
         const diaryNote: DiaryNote = await prisma.diaryNote.findFirst({
-          where: { dogId: dog.id, createdAt: { gte: today } },
+          where: { dogId: dog.id, createdAt: { gte: startOfDay } },
           orderBy: { createdAt: "desc" },
         });
         type DiaryPhotoWithPictures = DiaryPhoto & { pictures: File[] };
         const diaryPhoto: DiaryPhotoWithPictures =
           await prisma.diaryPhoto.findFirst({
-            where: { dogId: dog.id, createdAt: { gte: today } },
+            where: { dogId: dog.id, createdAt: { gte: startOfDay } },
             include: {
               pictures: true, // File[] 배열 포함
             },
