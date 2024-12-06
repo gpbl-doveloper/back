@@ -176,6 +176,7 @@ export const reservationsToday = asyncWrapper(
           lte: endOfDay,
         },
         centerId,
+        status: "ACCEPTED",
       },
       select: {
         dogId: true,
