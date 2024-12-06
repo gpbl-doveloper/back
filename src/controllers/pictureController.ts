@@ -49,12 +49,17 @@ export const uploadFiles = asyncWrapper(async (req: Request, res: Response) => {
 
 export const getFiles = asyncWrapper(async (req: Request, res: Response) => {
   const { date } = req.query;
+  const centerId = req.loginUser?.centerId;
   const dateMidnight = new Date(date ? (date as string) : Date()); // default: today
   dateMidnight.setHours(0, 0, 0, 0); // set time to midnight
 
+  if (!centerId) {
+    throw new CustomError(ErrorCode.USER_CENTER_ID_MISSING);
+  }
+
   const files = await prisma.file.findMany({
     where: {
-      centerId: req.loginUser?.centerId,
+      centerId: centerId,
       createdAt: {
         gte: dateMidnight,
       },
