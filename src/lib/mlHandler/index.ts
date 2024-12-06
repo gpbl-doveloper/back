@@ -52,6 +52,7 @@ const fetchReservations = async (
     where: {
       date: getDateRange(new Date()),
       centerId,
+      status: "ACCEPTED",
     },
     select: {
       dogId: true,
