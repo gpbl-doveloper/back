@@ -59,7 +59,7 @@ const fetchReservations = async (
     },
   });
 
-  // console.log("fetchReservations", reservations);
+  console.log("fetchReservations", reservations);
 
   return reservations;
 };
@@ -92,7 +92,7 @@ const fetchDogsData = async (
     });
   }
 
-  //   console.log("fetchDogsData", JSON.stringify(dogsData));
+  console.log("fetchDogsData", JSON.stringify(dogsData));
   return dogsData;
 };
 
